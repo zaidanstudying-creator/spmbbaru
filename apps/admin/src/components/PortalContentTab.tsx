@@ -113,6 +113,18 @@ export const PortalContentTab: React.FC = () => {
             <label className="text-xs font-bold text-slate-700">Pengantar Berita</label>
             <input className={inputCls} value={landingContent.newsIntro} onChange={(e) => updateLandingContent({ newsIntro: e.target.value })} />
           </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Judul Bantuan (atas Footer)</label>
+            <input className={inputCls} value={landingContent.helpTitle} onChange={(e) => updateLandingContent({ helpTitle: e.target.value })} />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Nomor WhatsApp Panitia</label>
+            <input className={inputCls} value={landingContent.waNumber} onChange={(e) => updateLandingContent({ waNumber: e.target.value })} placeholder="cth: 0862563784" />
+          </div>
+          <div className="md:col-span-2 space-y-1">
+            <label className="text-xs font-bold text-slate-700">Sub Judul Bantuan</label>
+            <input className={inputCls} value={landingContent.helpSubtitle} onChange={(e) => updateLandingContent({ helpSubtitle: e.target.value })} />
+          </div>
         </div>
       </Card>
 
@@ -325,6 +337,33 @@ export const PortalContentTab: React.FC = () => {
                 <button onClick={() => deleteNews(n.id)} className="text-rose-600 hover:text-rose-800 p-1 shrink-0 self-start">
                   <Icon name="delete" size={18} />
                 </button>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-600">Gambar / File Berita (JPG, PNG, atau PDF)</label>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => upsertNews({ ...n, imageUrl: String(reader.result || '') });
+                      reader.readAsDataURL(file);
+                    }}
+                    className="block text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                  />
+                  <input className={inputCls} placeholder="atau tempel URL gambar langsung" value={n.imageUrl && !n.imageUrl.startsWith('data:') ? n.imageUrl : ''} onChange={(e) => upsertNews({ ...n, imageUrl: e.target.value })} />
+                  {n.imageUrl !== undefined && n.imageUrl !== '' ? (
+                    <button onClick={() => upsertNews({ ...n, imageUrl: undefined })} className="text-rose-600 hover:text-rose-800 text-xs font-bold">
+                      Hapus gambar
+                    </button>
+                  ) : null}
+                </div>
+                {n.imageUrl &&
+                  (n.imageUrl.startsWith('data:image') || /\.(jpe?g|png|webp)$/i.test(n.imageUrl)) && (
+                    <img src={n.imageUrl} alt={n.title} className="h-24 w-auto rounded-lg border border-slate-200 object-cover" />
+                  )}
               </div>
             </div>
           ))}

@@ -262,6 +262,9 @@ export const DEFAULT_LANDING_CONTENT: LandingContent = {
   programsIntro:
     'Mengintegrasikan kurikulum Kementerian Agama RI, Kurikulum Merdeka Kemendikbud, serta kurikulum kepesantrenan terpadu 24 jam.',
   newsIntro: 'Informasi resmi terkini seputar agenda, jadwal, dan kebijakan penerimaan santri baru.',
+  waNumber: '0862563784',
+  helpTitle: 'Butuh Bantuan tentang PSB?',
+  helpSubtitle: 'Tim Panitia PSB siap membantu kamu via WhatsApp setiap hari pukul 07.00 - 20.00 WIB.',
   stats: [
     { id: 'st-1', label: 'Tahun Pengalaman', value: '25+' },
     { id: 'st-2', label: 'Santri Aktif', value: '1.200+' },

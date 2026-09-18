@@ -178,6 +178,7 @@ export interface NewsItem {
   date: string;
   excerpt: string;
   tag: string;
+  imageUrl?: string;
 }
 
 export interface KeyStatItem {
@@ -196,6 +197,9 @@ export interface LandingContent {
   quotaCalloutSub: string;
   programsIntro: string;
   newsIntro: string;
+  waNumber: string;
+  helpTitle: string;
+  helpSubtitle: string;
   stats: KeyStatItem[];
   faqs: FaqItem[];
   news: NewsItem[];

@@ -10,6 +10,7 @@ import { Button, Badge, Icon, Card, DocumentPreview } from '@spmb/ui';
 import { StepperProgress } from '../components/StepperProgress';
 import { DocumentUploadList } from '../components/DocumentUploadList';
 import { ExamCardModal } from '../components/ExamCardModal';
+import { KwitansiModal } from '../components/KwitansiModal';
 
 interface StudentDashboardProps {
   onNavigate: (view: 'landing' | 'register' | 'check-status' | 'login' | 'dashboard') => void;
@@ -24,10 +25,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
     setCurrentSantri,
     embargoState,
     updateSantriStatus,
-    levels
+    levels,
+    adminUsers
   } = useSPMB();
 
   const [showExamModal, setShowExamModal] = useState(false);
+  const [showKwitansi, setShowKwitansi] = useState(false);
   const [proofError, setProofError] = useState('');
   const [proofOk, setProofOk] = useState('');
 
@@ -52,6 +55,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
   }
 
   const currentWave = waves.find((w) => w.id === santri.waveId) || waves[0];
+  const ketuaNama = adminUsers.find((u) => u.role === 'KETUA_PANITIA')?.name || 'Panitia SPMB';
   const berkasStatus = getStatusBerkasLabel(santri.statusBerkas);
   const paymentStatus = getStatusPembayaranLabel(santri.statusPembayaran);
   const isAllVerified = santri.statusBerkas === 'TERVERIFIKASI';
@@ -308,9 +312,20 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
               </div>
 
               {santri.statusPembayaran === 'LUNAS' ? (
-                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
-                  <Icon name="verified" size={16} className="text-emerald-700" />
-                  Pembayaran telah dikonfirmasi lunas oleh panitia.
+                <div className="space-y-2.5">
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+                    <Icon name="verified" size={16} className="text-emerald-700" />
+                    Pembayaran telah dikonfirmasi lunas oleh panitia.
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="w-full"
+                    iconLeft="receipt_long"
+                    onClick={() => setShowKwitansi(true)}
+                  >
+                    Unduh Kwitansi Resmi Pesantren
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -382,6 +397,17 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
           isOpen={showExamModal}
           onClose={() => setShowExamModal(false)}
           santri={santri}
+        />
+      )}
+
+      {/* Modal Kwitansi Resmi Pembayaran */}
+      {showKwitansi && (
+        <KwitansiModal
+          santri={santri}
+          currentWave={currentWave}
+          branding={branding}
+          ketuaNama={ketuaNama}
+          onClose={() => setShowKwitansi(false)}
         />
       )}
     </div>

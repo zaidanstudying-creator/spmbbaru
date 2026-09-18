@@ -69,6 +69,7 @@ interface SPMBContextType {
       statusKelulusan?: StatusKelulusan;
       yudisiumScore?: number;
       catatanPanitia?: string;
+      paidAt?: string;
     }
   ) => void;
   uploadSantriDoc: (santriId: string, docKey: string, fileInfo: UploadedDoc) => void;
@@ -304,6 +305,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       statusKelulusan?: StatusKelulusan;
       yudisiumScore?: number;
       catatanPanitia?: string;
+      paidAt?: string;
     }
   ) => {
     setSantris((prev) =>

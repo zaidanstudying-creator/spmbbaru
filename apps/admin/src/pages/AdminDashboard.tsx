@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSPMB } from '@spmb/shared';
+import { useSPMB, getAdminRoleAllowedTabs, canRoleManageEmbargo, getRoleLabel } from '@spmb/shared';
 import { Button, Badge, Icon, Card } from '@spmb/ui';
 import { AdminSidebar, AdminTab } from '../components/AdminSidebar';
 import { AdminHeader } from '../components/AdminHeader';
@@ -8,6 +8,7 @@ import { WavesConfigTab } from '../components/WavesConfigTab';
 import { FormBuilderTab } from '../components/FormBuilderTab';
 import { NoregGeneratorTab } from '../components/NoregGeneratorTab';
 import { VerificationTab } from '../components/VerificationTab';
+import { PaymentsTab } from '../components/PaymentsTab';
 import { MassPublishModal } from '../components/MassPublishModal';
 
 interface AdminDashboardProps {
@@ -15,8 +16,19 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
-  const { branding, metrics, embargoState } = useSPMB();
-  const [activeTab, setActiveTab] = useState<AdminTab>('branding');
+  const { branding, metrics, embargoState, currentAdmin } = useSPMB();
+  const allowedTabs = getAdminRoleAllowedTabs(currentAdmin?.role);
+  const canPub = canRoleManageEmbargo(currentAdmin?.role);
+  const roleInfo = getRoleLabel(currentAdmin?.role);
+
+  const defaultTab: AdminTab =
+    currentAdmin?.role === 'BENDAHARA'
+      ? 'payments'
+      : currentAdmin?.role === 'VERIFIKATOR'
+      ? 'queue'
+      : 'branding';
+
+  const [activeTab, setActiveTab] = useState<AdminTab>(defaultTab);
   const [showMassPublishModal, setShowMassPublishModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -26,7 +38,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       <AdminSidebar
         activeTab={activeTab}
         onSelectTab={(tab) => {
-          if (tab === 'dashboard') setActiveTab('queue');
+          if (tab === 'dashboard') setActiveTab(defaultTab);
           else setActiveTab(tab);
         }}
         onOpenMassPublish={() => setShowMassPublishModal(true)}
@@ -60,6 +72,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             </div>
 
             <div className="flex items-center gap-3">
+              <span className={`flex items-center gap-2 border px-3 py-1.5 rounded-lg text-xs font-semibold ${roleInfo.badgeClass}`}>
+                <Icon name={roleInfo.icon} size={14} />
+                {roleInfo.label}
+              </span>
               <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg text-emerald-900 text-xs font-semibold">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>Status Core: Siap Menerima</span>
@@ -114,15 +130,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               </div>
             </div>
 
-            <Button
-              variant="amber"
-              size="md"
-              iconLeft="campaign"
-              onClick={() => setShowMassPublishModal(true)}
-              className="shrink-0 shadow-md"
-            >
-              {embargoState.isEmbargoActive ? 'Publikasi Masal Kelulusan' : 'Kelola Publikasi Masal'}
-            </Button>
+            {canPub ? (
+              <Button
+                variant="amber"
+                size="md"
+                iconLeft="campaign"
+                onClick={() => setShowMassPublishModal(true)}
+                className="shrink-0 shadow-md"
+              >
+                {embargoState.isEmbargoActive ? 'Publikasi Masal Kelulusan' : 'Kelola Publikasi Masal'}
+              </Button>
+            ) : (
+              <span className="text-[11px] italic text-slate-500 shrink-0">
+                Menu publikasi & embargo hanya untuk Ketua Panitia / Admin Super.
+              </span>
+            )}
           </div>
 
           {/* 3. Quick Metric Overview Cards */}
@@ -189,8 +211,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               { id: 'waves' as AdminTab, label: 'Setting Gelombang & Kuota', icon: 'calendar_month' },
               { id: 'formbuilder' as AdminTab, label: 'Form & Dokumen Builder', icon: 'dynamic_form' },
               { id: 'noreg' as AdminTab, label: 'Generator Format Noreg', icon: 'pin' },
-              { id: 'queue' as AdminTab, label: 'Antrean Verifikasi Berkas', icon: 'fact_check', badge: metrics.pendingDocs }
-            ].map((tab) => (
+              { id: 'queue' as AdminTab, label: 'Antrean Verifikasi Berkas', icon: 'fact_check', badge: metrics.pendingDocs },
+              { id: 'payments' as AdminTab, label: 'Pembayaran & VA', icon: 'payments' }
+            ]
+              .filter((tab) => allowedTabs.includes(tab.id))
+              .map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -224,6 +249,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             {activeTab === 'formbuilder' && <FormBuilderTab />}
             {activeTab === 'noreg' && <NoregGeneratorTab />}
             {activeTab === 'queue' && <VerificationTab searchQuery={searchQuery} />}
+            {activeTab === 'payments' && <PaymentsTab searchQuery={searchQuery} />}
           </div>
         </main>
       </div>

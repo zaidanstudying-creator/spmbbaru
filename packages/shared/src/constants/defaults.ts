@@ -5,8 +5,19 @@ import {
   NoregFormatConfig,
   SantriData,
   AdminUser,
+  AdminRole,
+  AdminTabId,
   SystemEmbargoState
 } from '../types';
+
+export const ADMIN_ROLE_TABS: Record<AdminRole, AdminTabId[]> = {
+  ADMIN_SUPER: ['branding', 'waves', 'formbuilder', 'noreg', 'queue', 'payments'],
+  KETUA_PANITIA: ['branding', 'waves', 'formbuilder', 'noreg', 'queue', 'payments'],
+  VERIFIKATOR: ['queue'],
+  BENDAHARA: ['payments']
+};
+
+export const CAN_MANAGE_EMBARGO: AdminRole[] = ['ADMIN_SUPER', 'KETUA_PANITIA'];
 
 export const DEFAULT_BRANDING: BrandingSettings = {
   pesantrenName: 'Pesantren Modern Al-Hikmah',

@@ -218,3 +218,21 @@ export function getPublicKelulusanStatus(
     isPassed: false
   };
 }
+
+export function getAdminRoleAllowedTabs(role?: string): string[] {
+  switch (role) {
+    case 'KETUA_PANITIA':
+    case 'ADMIN_SUPER':
+      return ['branding', 'waves', 'formbuilder', 'noreg', 'queue', 'payments'];
+    case 'VERIFIKATOR':
+      return ['queue'];
+    case 'BENDAHARA':
+      return ['payments'];
+    default:
+      return ['queue'];
+  }
+}
+
+export function canRoleManageEmbargo(role?: string): boolean {
+  return role === 'KETUA_PANITIA' || role === 'ADMIN_SUPER';
+}

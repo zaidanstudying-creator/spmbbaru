@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SantriData, useSPMB, getStatusBerkasLabel } from '@spmb/shared';
-import { Modal, Button, Badge, Icon } from '@spmb/ui';
+import { Modal, Button, Badge, Icon, DocumentPreview } from '@spmb/ui';
 
 interface DocumentModalProps {
   isOpen: boolean;
@@ -12,6 +12,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ isOpen, onClose, s
   const { docRequirements, updateSantriStatus, verifySantriDoc } = useSPMB();
   const [rejectNote, setRejectNote] = useState('');
   const [activeDocKey, setActiveDocKey] = useState<string | null>(null);
+  const [previewDocKey, setPreviewDocKey] = useState<string | null>(null);
 
   const berkasStatus = getStatusBerkasLabel(santri.statusBerkas);
 
@@ -110,6 +111,17 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ isOpen, onClose, s
                       {isUploaded ? (
                         <>
                           <button
+                            onClick={() => setPreviewDocKey(previewDocKey === doc.key ? null : doc.key)}
+                            className={`px-2.5 py-1 rounded text-xs font-semibold flex items-center gap-1 ${
+                              previewDocKey === doc.key
+                                ? 'bg-slate-700 text-white'
+                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            }`}
+                          >
+                            <Icon name="visibility" size={13} />
+                            Lihat
+                          </button>
+                          <button
                             onClick={() => verifySantriDoc(santri.id, doc.key, 'VALID')}
                             className={`px-2.5 py-1 rounded text-xs font-semibold ${
                               isValid
@@ -135,6 +147,29 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ isOpen, onClose, s
                       )}
                     </div>
                   </div>
+
+                  {previewDocKey === doc.key && (
+                    <div className="mt-3 p-3 rounded-lg bg-slate-50 border border-slate-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                          Pratinjau Berkas
+                        </span>
+                        <button
+                          onClick={() => setPreviewDocKey(null)}
+                          className="text-[11px] text-slate-400 hover:text-slate-600"
+                        >
+                          Tutup
+                        </button>
+                      </div>
+                      <DocumentPreview
+                        fileUrl={uploaded.fileUrl}
+                        fileName={uploaded.fileName}
+                        docName={doc.name}
+                        docKey={doc.key}
+                        uploadDate={uploaded.uploadDate}
+                      />
+                    </div>
+                  )}
 
                   {activeDocKey === doc.key && (
                     <div className="mt-2 p-2.5 bg-rose-50 border border-rose-200 rounded flex items-center gap-2">

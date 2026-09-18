@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { SantriData, useSPMB } from '@spmb/shared';
-import { Badge, Button, Icon } from '@spmb/ui';
+import { Badge, Button, Icon, DocumentPreview } from '@spmb/ui';
 
 interface DocumentUploadListProps {
   santri: SantriData;
@@ -8,25 +8,65 @@ interface DocumentUploadListProps {
 
 export const DocumentUploadList: React.FC<DocumentUploadListProps> = ({ santri }) => {
   const { docRequirements, uploadSantriDoc } = useSPMB();
-  const [activeUploadDocKey, setActiveUploadDocKey] = useState<string | null>(null);
-  const [mockFileName, setMockFileName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
+  const [previewKey, setPreviewKey] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleMockUpload = (docKey: string) => {
-    if (!mockFileName.trim()) return;
-    uploadSantriDoc(santri.id, docKey, {
-      docKey,
-      fileName: mockFileName.trim(),
-      fileSize: '1.2 MB',
-      uploadDate: new Date().toISOString().split('T')[0],
-      fileUrl: '#',
-      status: 'PENDING'
-    });
-    setActiveUploadDocKey(null);
-    setMockFileName('');
+  const handlePickFile = (docKey: string) => {
+    setPendingKey(docKey);
+    setErrorMsg('');
+    requestAnimationFrame(() => fileInputRef.current?.click());
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const doc = docRequirements.find((d) => d.key === pendingKey);
+    e.target.value = '';
+    if (!file || !doc || !pendingKey) return;
+
+    const ext = file.name.split('.').pop()?.toUpperCase() || '';
+    if (!doc.allowedFormats.includes(ext)) {
+      setErrorMsg(`Format ${ext} tidak diizinkan untuk ${doc.name}. Gunakan: ${doc.allowedFormats.join(', ')}`);
+      setPendingKey(null);
+      return;
+    }
+    if (file.size > doc.maxSizeMB * 1024 * 1024) {
+      setErrorMsg(`Ukuran ${file.name} melebihi ${doc.maxSizeMB}MB. Perkecil dahulu lalu ulangi.`);
+      setPendingKey(null);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      uploadSantriDoc(santri.id, pendingKey, {
+        docKey: pendingKey,
+        fileName: file.name,
+        fileSize: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+        uploadDate: new Date().toISOString().split('T')[0],
+        fileUrl: String(reader.result || ''),
+        status: 'PENDING'
+      });
+      setPendingKey(null);
+      setPreviewKey(pendingKey);
+      setErrorMsg('');
+    };
+    reader.onerror = () => {
+      setErrorMsg('Gagal membaca file. Coba file lain.');
+      setPendingKey(null);
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6 space-y-6">
+      <input
+        ref={fileInputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
         <div>
           <h3 className="font-serif text-lg font-bold text-slate-900">
@@ -43,6 +83,13 @@ export const DocumentUploadList: React.FC<DocumentUploadListProps> = ({ santri }
         </div>
       </div>
 
+      {errorMsg && (
+        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2">
+          <Icon name="info" size={16} className="shrink-0 mt-0.5" />
+          {errorMsg}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {docRequirements.map((doc) => {
           const uploaded = santri.documents[doc.key];
@@ -50,6 +97,7 @@ export const DocumentUploadList: React.FC<DocumentUploadListProps> = ({ santri }
           const isRevising = uploaded?.status === 'REJECTED';
           const isValid = uploaded?.status === 'VALID';
           const isPending = uploaded?.status === 'PENDING';
+          const isPreviewing = previewKey === doc.key;
 
           return (
             <div
@@ -88,14 +136,12 @@ export const DocumentUploadList: React.FC<DocumentUploadListProps> = ({ santri }
                   </div>
                 </div>
 
-                {/* Status Tag */}
                 {isValid && <Badge variant="emerald" size="sm">Valid</Badge>}
                 {isRevising && <Badge variant="rose" size="sm">Revisi</Badge>}
                 {isPending && <Badge variant="sky" size="sm">Diperiksa</Badge>}
                 {!isUploaded && <Badge variant="neutral" size="sm">Belum Upload</Badge>}
               </div>
 
-              {/* Uploaded File Info */}
               {isUploaded && (
                 <div className="mt-3 p-2.5 rounded-lg bg-white border border-slate-200 text-xs flex items-center justify-between">
                   <div className="flex items-center gap-2 overflow-hidden">
@@ -107,7 +153,6 @@ export const DocumentUploadList: React.FC<DocumentUploadListProps> = ({ santri }
                 </div>
               )}
 
-              {/* Rejection Note Alert */}
               {isRevising && uploaded.rejectionNote && (
                 <div className="mt-2.5 p-2 rounded-lg bg-rose-100 border border-rose-200 text-xs text-rose-800 flex items-start gap-1.5">
                   <Icon name="info" size={16} className="shrink-0 text-rose-600 mt-0.5" />
@@ -115,47 +160,53 @@ export const DocumentUploadList: React.FC<DocumentUploadListProps> = ({ santri }
                 </div>
               )}
 
-              {/* Actions */}
-              <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between">
+              {isPreviewing && isUploaded && (
+                <div className="mt-3 rounded-lg bg-slate-50/70 border border-slate-200 p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      Pratinjau
+                    </span>
+                    <button
+                      onClick={() => setPreviewKey(null)}
+                      className="text-[11px] text-slate-400 hover:text-slate-600"
+                    >
+                      Tutup
+                    </button>
+                  </div>
+                  <DocumentPreview
+                    fileUrl={uploaded.fileUrl}
+                    fileName={uploaded.fileName}
+                    docName={doc.name}
+                    docKey={doc.key}
+                    uploadDate={uploaded.uploadDate}
+                  />
+                </div>
+              )}
+
+              <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between gap-2">
                 <span className="text-[11px] text-slate-400">
                   Format: {doc.allowedFormats.join(', ')} (Maks {doc.maxSizeMB}MB)
                 </span>
 
-                {activeUploadDocKey === doc.key ? (
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="text"
-                      placeholder="Nama_File.pdf"
-                      value={mockFileName}
-                      onChange={(e) => setMockFileName(e.target.value)}
-                      className="text-xs px-2 py-1 rounded border border-slate-300 w-32 focus:outline-none focus:border-emerald-600"
-                    />
+                <div className="flex items-center gap-1.5">
+                  {isUploaded && (
                     <button
-                      onClick={() => handleMockUpload(doc.key)}
-                      className="px-2 py-1 bg-emerald-700 text-white rounded text-xs font-semibold hover:bg-emerald-800"
+                      onClick={() => setPreviewKey(isPreviewing ? null : doc.key)}
+                      className="px-2 py-1 rounded text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 flex items-center gap-1"
                     >
-                      Unggah
+                      <Icon name="visibility" size={14} />
+                      {isPreviewing ? 'Sembunyikan' : 'Lihat'}
                     </button>
-                    <button
-                      onClick={() => setActiveUploadDocKey(null)}
-                      className="px-1.5 py-1 text-slate-400 hover:text-slate-600 text-xs"
-                    >
-                      Batal
-                    </button>
-                  </div>
-                ) : (
+                  )}
                   <Button
                     variant={isRevising ? 'danger' : isUploaded ? 'outline' : 'secondary'}
                     size="sm"
                     iconLeft={isUploaded ? 'refresh' : 'upload_file'}
-                    onClick={() => {
-                      setActiveUploadDocKey(doc.key);
-                      setMockFileName(`Scan_${doc.key.toUpperCase()}_${santri.fullName.split(' ')[0]}.pdf`);
-                    }}
+                    onClick={() => handlePickFile(doc.key)}
                   >
                     {isRevising ? 'Upload Ulang' : isUploaded ? 'Ganti Berkas' : 'Unggah'}
                   </Button>
-                )}
+                </div>
               </div>
             </div>
           );

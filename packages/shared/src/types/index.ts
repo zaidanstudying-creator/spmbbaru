@@ -5,6 +5,8 @@ export type JurusanMA = 'MIPA' | 'IPS' | 'KEAGAMAAN' | 'UMUM';
 export type StatusBerkas = 'MENUNGGU' | 'TERVERIFIKASI' | 'REVISI' | 'DITOLAK';
 export type StatusPembayaran = 'BELUM_BAYAR' | 'MENUNGGU_KONFIRMASI' | 'LUNAS' | 'KADALUARSA';
 export type StatusKelulusan = 'DRAFT_LOLOS' | 'DRAFT_CADANGAN' | 'DRAFT_TIDAK_LOLOS' | 'LOLOS' | 'CADANGAN' | 'TIDAK_LOLOS' | 'BELUM_DITENTUKAN';
+export type AdminRole = 'KETUA_PANITIA' | 'VERIFIKATOR' | 'BENDAHARA' | 'ADMIN_SUPER';
+export type AdminTabId = 'branding' | 'waves' | 'formbuilder' | 'noreg' | 'queue' | 'payments';
 
 export interface BrandingSettings {
   pesantrenName: string;
@@ -134,7 +136,7 @@ export interface AdminUser {
   name: string;
   nip: string;
   email: string;
-  role: 'KETUA_PANITIA' | 'VERIFIKATOR' | 'BENDAHARA' | 'ADMIN_SUPER';
+  role: AdminRole;
   avatarUrl: string;
 }
 

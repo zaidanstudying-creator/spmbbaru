@@ -9,6 +9,7 @@ import { FormBuilderTab } from '../components/FormBuilderTab';
 import { NoregGeneratorTab } from '../components/NoregGeneratorTab';
 import { VerificationTab } from '../components/VerificationTab';
 import { PaymentsTab } from '../components/PaymentsTab';
+import { DashboardAnalytics } from '../components/DashboardAnalytics';
 import { MassPublishModal } from '../components/MassPublishModal';
 
 interface AdminDashboardProps {
@@ -203,6 +204,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               </div>
             </Card>
           </div>
+
+          {/* 3.5 Rekap & Analitik (grafik + ringkasan) */}
+          <DashboardAnalytics />
 
           {/* 4. Tab Navigation Bar */}
           <div className="bg-white rounded-xl p-1.5 border border-slate-200/80 shadow-sm flex flex-wrap gap-1.5 overflow-x-auto text-xs font-semibold">

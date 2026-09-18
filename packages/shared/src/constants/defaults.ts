@@ -342,7 +342,7 @@ export const DEFAULT_SANTRIS: SantriData[] = [
       sesiUjian: 'Sesi 1 (Pukul 08:00 - 11:30 WIB)',
       nomorMeja: 'M-24',
       pinCbt: '9842',
-      jadwalUjian: 'Sabtu, 08 Maret 2025',
+      jadwalUjian: '2025-03-08',
       lokasiGedung: 'Kampus Utama Al-Hikmah, Gedung Ibnu Sina',
       qrCodeString: 'SPMB-ALHIKMAH-REG20250842-VALID',
       isPublished: true
@@ -461,7 +461,7 @@ export const DEFAULT_SANTRIS: SantriData[] = [
       sesiUjian: 'Sesi 2 (Pukul 13:00 - 16:30 WIB)',
       nomorMeja: 'M-12',
       pinCbt: '9845',
-      jadwalUjian: 'Sabtu, 08 Maret 2025',
+      jadwalUjian: '2025-03-08',
       lokasiGedung: 'Kampus Utama Al-Hikmah, Gedung Ibnu Sina',
       qrCodeString: 'SPMB-ALHIKMAH-REG20250845-VALID',
       isPublished: true

@@ -194,6 +194,16 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateWave = (waveId: string, updates: Partial<WaveConfig>) => {
     setWaves((prev) => prev.map((w) => (w.id === waveId ? { ...w, ...updates } : w)));
+    if (updates.testDate) {
+      setSantris((prev) =>
+        prev.map((s) => {
+          if (s.waveId !== waveId || !s.examCard) return s;
+          const updated = { ...s, examCard: { ...s.examCard, jadwalUjian: updates.testDate as string } };
+          if (currentSantri?.id === s.id) setCurrentSantriState(updated);
+          return updated;
+        })
+      );
+    }
   };
 
   const toggleWaveActive = (waveId: string) => {

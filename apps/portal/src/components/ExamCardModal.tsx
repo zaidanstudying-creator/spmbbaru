@@ -149,7 +149,7 @@ export const ExamCardModal: React.FC<ExamCardModalProps> = ({ isOpen, onClose, s
             <div>
               <span className="text-xs text-emerald-300 font-medium block">Hari & Tanggal Ujian</span>
               <span className="text-sm font-bold block mt-0.5">
-                {exam?.jadwalUjian ? formatDateIndo(exam.jadwalUjian) : 'Sabtu, 08 Maret 2025'}
+                {exam?.jadwalUjian ? formatDateIndo(exam.jadwalUjian) : currentWave?.testDate ? formatDateIndo(currentWave.testDate) : 'Belum dijadwalkan'}
               </span>
             </div>
             <div>

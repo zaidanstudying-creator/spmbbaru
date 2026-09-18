@@ -9,7 +9,7 @@ interface ExamCardModalProps {
 }
 
 export const ExamCardModal: React.FC<ExamCardModalProps> = ({ isOpen, onClose, santri }) => {
-  const { branding, waves } = useSPMB();
+  const { branding, waves, levels } = useSPMB();
   const currentWave = waves.find((w) => w.id === santri.waveId) || waves[0];
   const exam = santri.examCard;
 
@@ -105,7 +105,8 @@ export const ExamCardModal: React.FC<ExamCardModalProps> = ({ isOpen, onClose, s
                   <tr className="border-b border-slate-100">
                     <td className="py-1.5 text-slate-500 font-medium">Pilihan Jenjang</td>
                     <td className="py-1.5 font-semibold text-emerald-800">
-                      {santri.level === 'MA' ? `Madrasah Aliyah (MA) - Jurusan ${santri.jurusan || 'MIPA'}` : 'Madrasah Tsanawiyah (MTs)'}
+                      {levels.find((l) => l.id === santri.level)?.label || santri.level}
+                        {santri.level === 'MA' ? ` - Jurusan ${santri.jurusan || 'MIPA'}` : ''}
                     </td>
                   </tr>
                   <tr className="border-b border-slate-100">

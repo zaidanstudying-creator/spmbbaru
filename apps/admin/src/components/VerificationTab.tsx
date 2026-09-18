@@ -17,7 +17,7 @@ interface VerificationTabProps {
 }
 
 export const VerificationTab: React.FC<VerificationTabProps> = ({ searchQuery = '' }) => {
-  const { santris, updateSantriStatus, embargoState } = useSPMB();
+  const { santris, updateSantriStatus, embargoState, levels } = useSPMB();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [selectedSantri, setSelectedSantri] = useState<SantriData | null>(null);
@@ -100,8 +100,9 @@ export const VerificationTab: React.FC<VerificationTabProps> = ({ searchQuery = 
               className="h-8 px-2.5 rounded-lg border border-slate-300 text-xs font-semibold focus:outline-none focus:border-emerald-700"
             >
               <option value="ALL">Semua Jenjang</option>
-              <option value="MA">Madrasah Aliyah (MA)</option>
-              <option value="MTS">Madrasah Tsanawiyah (MTs)</option>
+              {levels.map((lvl) => (
+                <option key={lvl.id} value={lvl.id}>{lvl.label}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -158,7 +159,8 @@ export const VerificationTab: React.FC<VerificationTabProps> = ({ searchQuery = 
 
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <span className="font-semibold text-slate-800 block">
-                        {santri.level === 'MA' ? `MA (${santri.jurusan || 'MIPA'})` : 'MTs Unggulan'}
+                        {levels.find((l) => l.id === santri.level)?.shortLabel || santri.level}
+                        {santri.level === 'MA' ? ` (${santri.jurusan || 'MIPA'})` : ''}
                       </span>
                       <span className="text-[10px] text-slate-400">
                         {santri.gender === 'L' ? 'Santri Putra' : 'Santriwati Putri'}

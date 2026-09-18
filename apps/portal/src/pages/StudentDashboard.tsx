@@ -23,7 +23,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
     santris,
     setCurrentSantri,
     embargoState,
-    updateSantriStatus
+    updateSantriStatus,
+    levels
   } = useSPMB();
 
   const [showExamModal, setShowExamModal] = useState(false);
@@ -148,7 +149,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
                     {currentWave.name}
                   </span>
                   <span className="text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-0.5 rounded-full">
-                    {santri.level === 'MA' ? `MA Unggulan Sains & Agama (${santri.jurusan || 'MIPA'})` : 'MTs Unggulan'}
+                    {(levels.find((l) => l.id === santri.level)?.label || santri.level)}
+                    {santri.level === 'MA' ? ` (${santri.jurusan || 'MIPA'})` : ''}
                   </span>
                 </div>
 

@@ -104,6 +104,8 @@ interface SPMBContextType {
 
   levels: LevelOption[];
   updateLevel: (levelId: JenjangPendidikan, updates: Partial<LevelOption>) => void;
+  addLevel: (level: LevelOption) => void;
+  deleteLevel: (levelId: JenjangPendidikan) => void;
   majors: MajorOption[];
   addMajor: (major: MajorOption) => void;
   updateMajor: (majorId: string, updates: Partial<MajorOption>) => void;
@@ -519,6 +521,14 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLevels((prev) => prev.map((l) => (l.id === levelId ? { ...l, ...updates } : l)));
   };
 
+  const addLevel = (level: LevelOption) => {
+    setLevels((prev) => [...prev, level]);
+  };
+
+  const deleteLevel = (levelId: JenjangPendidikan) => {
+    setLevels((prev) => prev.filter((l) => l.id !== levelId));
+  };
+
   const addMajor = (major: MajorOption) => {
     setMajors((prev) => [...prev, major]);
   };
@@ -643,6 +653,8 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addAdminUser,
         levels,
         updateLevel,
+        addLevel,
+        deleteLevel,
         majors,
         addMajor,
         updateMajor,

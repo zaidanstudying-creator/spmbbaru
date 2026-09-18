@@ -195,10 +195,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
               </div>
 
               {/* Jurusan MA if selected */}
-              {formData.level === 'MA' && (
+              {formData.level !== 'MTS' && majors.length > 0 && (
                 <div className="space-y-2 pt-2">
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Pilihan Peminatan / Jurusan MA *
+                    Pilihan Jurusan *
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {majors.map((j) => (
@@ -522,7 +522,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                 <div className="flex justify-between border-b border-slate-200/70 pb-2">
                   <span className="text-slate-500">Pilihan Jenjang:</span>
                   <span className="font-bold text-emerald-900">
-                    {formData.level === 'MA' ? `Madrasah Aliyah (MA) - ${formData.jurusan}` : 'Madrasah Tsanawiyah (MTs)'}
+                    {levels.find((l) => l.id === formData.level)?.label || formData.level}
+                    {formData.level === 'MA' ? ` - ${formData.jurusan}` : ''}
                   </span>
                 </div>
                 <div className="flex justify-between border-b border-slate-200/70 pb-2">

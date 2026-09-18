@@ -14,7 +14,7 @@ interface PaymentsTabProps {
 }
 
 export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) => {
-  const { santris, updateSantriStatus } = useSPMB();
+  const { santris, updateSantriStatus, levels } = useSPMB();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [proofSantri, setProofSantri] = useState<SantriData | null>(null);
 
@@ -124,7 +124,8 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap font-semibold text-slate-800">
-                      {s.level === 'MA' ? `MA (${s.jurusan || 'MIPA'})` : 'MTs Unggulan'}
+                      {levels.find((l) => l.id === s.level)?.shortLabel || s.level}
+                      {s.level === 'MA' ? ` (${s.jurusan || 'MIPA'})` : ''}
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <span className="text-slate-700 font-mono text-[11px] font-semibold">{s.virtualAccount}</span>

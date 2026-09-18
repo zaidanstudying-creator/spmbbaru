@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSPMB, FaqItem, NewsItem, KeyStatItem, MajorOption } from '@spmb/shared';
+import { useSPMB, FaqItem, NewsItem, KeyStatItem, MajorOption, LevelOption } from '@spmb/shared';
 import { Button, Badge, Icon, Card } from '@spmb/ui';
 
 const inputCls = 'w-full h-9 px-3 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600/30';
@@ -17,6 +17,8 @@ export const PortalContentTab: React.FC = () => {
     deleteStat,
     levels,
     updateLevel,
+    addLevel,
+    deleteLevel,
     majors,
     addMajor,
     updateMajor,
@@ -33,6 +35,17 @@ export const PortalContentTab: React.FC = () => {
   const [newNews, setNewNews] = useState<NewsItem>({ id: '', title: '', date: '', excerpt: '', tag: 'Informasi' });
   const [newStat, setNewStat] = useState<KeyStatItem>({ id: '', label: '', value: '' });
   const [newMajor, setNewMajor] = useState<MajorOption>({ id: '', name: '', desc: '' });
+  const [showAddLevel, setShowAddLevel] = useState(false);
+  const [draftLevel, setDraftLevel] = useState<LevelOption>({
+    id: '',
+    label: '',
+    shortLabel: '',
+    stage: '',
+    subNote: '',
+    description: '',
+    features: [],
+    quotaText: ''
+  });
 
   return (
     <div className="space-y-6">
@@ -138,13 +151,71 @@ export const PortalContentTab: React.FC = () => {
       </Card>
 
       {/* C. JENJANG PENDIDIKAN */}
-      {levels.map((lvl) => (
+      <Card className="p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h3 className="font-serif text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Icon name="school" size={20} className="text-emerald-700" /> Jenjang Pendidikan
+          </h3>
+          <div className="flex items-center gap-2">
+            <Button variant="primary" size="sm" iconLeft="add" onClick={() => setShowAddLevel(!showAddLevel)}>
+              {showAddLevel ? 'Tutup Form' : 'Tambah Jenjang Baru'}
+            </Button>
+          </div>
+        </div>
+
+        {showAddLevel && (
+          <div className="p-4 rounded-xl border border-emerald-300 bg-emerald-50/40 space-y-3">
+            <span className="text-xs font-bold text-emerald-900">Form Jenjang Baru</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input className={inputCls} placeholder="Nama lengkap, cth: Madrasah Ibtidaiyah (MI)" value={draftLevel.label} onChange={(e) => setDraftLevel({ ...draftLevel, label: e.target.value })} />
+              <input className={inputCls} placeholder="Label singkat, cth: MI" value={draftLevel.shortLabel} onChange={(e) => setDraftLevel({ ...draftLevel, shortLabel: e.target.value })} />
+              <input className={inputCls} placeholder="Tingkat, cth: Tingkat Menengah Pertama" value={draftLevel.stage} onChange={(e) => setDraftLevel({ ...draftLevel, stage: e.target.value })} />
+              <input className={inputCls} placeholder="Sub catatan, cth: Setara SMP & Akreditasi A" value={draftLevel.subNote} onChange={(e) => setDraftLevel({ ...draftLevel, subNote: e.target.value })} />
+              <div className="md:col-span-2"><input className={inputCls} placeholder="Deskripsi singkat" value={draftLevel.description} onChange={(e) => setDraftLevel({ ...draftLevel, description: e.target.value })} /></div>
+              <div className="md:col-span-2"><input className={inputCls} placeholder="Info kuota, cth: Kuota Putra: 80 & Putri: 70" value={draftLevel.quotaText} onChange={(e) => setDraftLevel({ ...draftLevel, quotaText: e.target.value })} /></div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input className={inputCls} placeholder="Poin keunggulan (pisahkan dengan ;)" value={draftLevel.features.join(' ; ')} onChange={(e) => setDraftLevel({ ...draftLevel, features: e.target.value.split(';').map((s) => s.trim()).filter(Boolean) })} />
+              <Button
+                variant="primary"
+                size="sm"
+                iconLeft="add"
+                onClick={() => {
+                  if (!draftLevel.label.trim()) return;
+                  const id = (draftLevel.shortLabel.trim() || draftLevel.label).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || `L${Date.now()}`;
+                  addLevel({ ...draftLevel, id: id as LevelOption['id'], features: draftLevel.features.slice(0, 6) });
+                  setDraftLevel({ id: '', label: '', shortLabel: '', stage: '', subNote: '', description: '', features: [], quotaText: '' });
+                  setShowAddLevel(false);
+                  flash(`Jenjang baru "${draftLevel.label}" ditambahkan & langsung tampil di portal.`);
+                }}
+              >
+                Simpan Jenjang
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {levels.map((lvl) => (
         <Card key={lvl.id} className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-serif text-lg font-bold text-slate-900 flex items-center gap-2">
               <Icon name="school" size={20} className="text-emerald-700" /> Jenjang {lvl.shortLabel}
             </h3>
-            <Badge variant="emerald" size="sm">{lvl.id}</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="emerald" size="sm">{lvl.id}</Badge>
+              {levels.length > 1 && (
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Hapus jenjang "${lvl.label}"? Santri pada jenjang ini tetap tersimpan.`)) {
+                      deleteLevel(lvl.id);
+                    }
+                  }}
+                  className="text-rose-600 hover:text-rose-800 p-1 shrink-0"
+                >
+                  <Icon name="delete" size={18} />
+                </button>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -199,6 +270,8 @@ export const PortalContentTab: React.FC = () => {
           </div>
         </Card>
       ))}
+
+      </Card>
 
       {/* D. JURUSAN / PEMINATAN */}
       <Card className="p-6 space-y-4">

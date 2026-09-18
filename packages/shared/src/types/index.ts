@@ -1,5 +1,5 @@
 export type Gender = 'L' | 'P';
-export type JenjangPendidikan = 'MTS' | 'MA';
+export type JenjangPendidikan = 'MTS' | 'MA' | (string & {});
 export type JurusanMA = 'MIPA' | 'IPS' | 'KEAGAMAAN' | 'UMUM';
 
 export type StatusBerkas = 'MENUNGGU' | 'TERVERIFIKASI' | 'REVISI' | 'DITOLAK';

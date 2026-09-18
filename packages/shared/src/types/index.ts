@@ -6,7 +6,15 @@ export type StatusBerkas = 'MENUNGGU' | 'TERVERIFIKASI' | 'REVISI' | 'DITOLAK';
 export type StatusPembayaran = 'BELUM_BAYAR' | 'MENUNGGU_KONFIRMASI' | 'LUNAS' | 'KADALUARSA';
 export type StatusKelulusan = 'DRAFT_LOLOS' | 'DRAFT_CADANGAN' | 'DRAFT_TIDAK_LOLOS' | 'LOLOS' | 'CADANGAN' | 'TIDAK_LOLOS' | 'BELUM_DITENTUKAN';
 export type AdminRole = 'KETUA_PANITIA' | 'VERIFIKATOR' | 'BENDAHARA' | 'ADMIN_SUPER';
-export type AdminTabId = 'branding' | 'waves' | 'formbuilder' | 'noreg' | 'queue' | 'payments';
+export type AdminTabId =
+  | 'branding'
+  | 'waves'
+  | 'formbuilder'
+  | 'noreg'
+  | 'queue'
+  | 'payments'
+  | 'konten'
+  | 'akun';
 
 export interface BrandingSettings {
   pesantrenName: string;
@@ -136,8 +144,61 @@ export interface AdminUser {
   name: string;
   nip: string;
   email: string;
+  password?: string;
   role: AdminRole;
   avatarUrl: string;
+}
+
+export interface LevelOption {
+  id: JenjangPendidikan;
+  label: string;
+  shortLabel: string;
+  stage: string;
+  subNote: string;
+  description: string;
+  features: string[];
+  quotaText: string;
+}
+
+export interface MajorOption {
+  id: string;
+  name: string;
+  desc: string;
+}
+
+export interface FaqItem {
+  id: string;
+  q: string;
+  a: string;
+}
+
+export interface NewsItem {
+  id: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  tag: string;
+}
+
+export interface KeyStatItem {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface LandingContent {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroDescription: string;
+  heroImageUrl: string;
+  heroBadge: string;
+  quotaCalloutTitle: string;
+  quotaCalloutSub: string;
+  programsIntro: string;
+  newsIntro: string;
+  stats: KeyStatItem[];
+  faqs: FaqItem[];
+  news: NewsItem[];
 }
 
 export interface SystemEmbargoState {

@@ -7,7 +7,7 @@ import {
   formatDateIndo,
   getStatusPembayaranLabel
 } from '@spmb/shared';
-import { Badge, Icon, Button } from '@spmb/ui';
+import { Badge, Icon, Button, Modal, DocumentPreview } from '@spmb/ui';
 
 interface PaymentsTabProps {
   searchQuery?: string;
@@ -16,6 +16,7 @@ interface PaymentsTabProps {
 export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) => {
   const { santris, updateSantriStatus } = useSPMB();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
+  const [proofSantri, setProofSantri] = useState<SantriData | null>(null);
 
   const filtered = santris.filter((s) => {
     if (filterStatus !== 'ALL' && s.statusPembayaran !== filterStatus) return false;
@@ -140,20 +141,39 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                       {s.paidAt && (
                         <span className="text-[10px] text-slate-400 block mt-0.5">Lunas sejak {formatDateIndo(s.paidAt)}</span>
                       )}
+                      {s.paymentProofUrl && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700 mt-0.5">
+                          <Icon name="attach_file" size={12} /> Bukti transfer terunggah
+                        </span>
+                      )}
                     </td>
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      {isLunas ? (
-                        <span className="text-[11px] text-slate-400 italic">Sudah dikonfirmasi</span>
-                      ) : (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          iconLeft="verified"
-                          onClick={() => confirmPaid(s)}
-                        >
-                          Konfirmasi Lunas
-                        </Button>
-                      )}
+                      <div className="flex items-center justify-center gap-2">
+                        {s.paymentProofUrl ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            iconLeft="visibility"
+                            onClick={() => setProofSantri(s)}
+                          >
+                            Lihat Bukti
+                          </Button>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 italic">Tanpa bukti</span>
+                        )}
+                        {isLunas ? (
+                          <span className="text-[11px] text-slate-400 italic">Lunas</span>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            iconLeft="verified"
+                            onClick={() => confirmPaid(s)}
+                          >
+                            Konfirmasi Lunas
+                          </Button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -169,6 +189,45 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
           </table>
         </div>
       </div>
+
+      <Modal
+        isOpen={!!proofSantri}
+        onClose={() => setProofSantri(null)}
+        title="Bukti Transfer Pembayaran"
+        subtitle={proofSantri ? `${proofSantri.fullName} • ${proofSantri.noReg} • ${proofSantri.virtualAccount}` : undefined}
+        maxWidth="2xl"
+      >
+        {proofSantri && (
+          <div className="space-y-4">
+            <DocumentPreview
+              fileUrl={proofSantri.paymentProofUrl || ''}
+              fileName={`bukti-${proofSantri.noReg}.jpg`}
+              docName="Bukti Transfer Biaya Pendaftaran"
+              docKey="bukti_pembayaran"
+              uploadDate={proofSantri.paidAt}
+            />
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <span className="text-slate-600">
+                Nominal tagihan:{' '}
+                <strong className="text-slate-900">{formatCurrency(proofSantri.nominalBayar)}</strong>
+              </span>
+              {proofSantri.statusPembayaran !== 'LUNAS' && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  iconLeft="verified"
+                  onClick={() => {
+                    confirmPaid(proofSantri);
+                    setProofSantri(null);
+                  }}
+                >
+                  Konfirmasi Lunas
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

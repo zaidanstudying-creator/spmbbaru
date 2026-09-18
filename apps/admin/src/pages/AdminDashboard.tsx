@@ -9,6 +9,8 @@ import { FormBuilderTab } from '../components/FormBuilderTab';
 import { NoregGeneratorTab } from '../components/NoregGeneratorTab';
 import { VerificationTab } from '../components/VerificationTab';
 import { PaymentsTab } from '../components/PaymentsTab';
+import { PortalContentTab } from '../components/PortalContentTab';
+import { AccountTab } from '../components/AccountTab';
 import { DashboardAnalytics } from '../components/DashboardAnalytics';
 import { MassPublishModal } from '../components/MassPublishModal';
 
@@ -216,7 +218,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               { id: 'formbuilder' as AdminTab, label: 'Form & Dokumen Builder', icon: 'dynamic_form' },
               { id: 'noreg' as AdminTab, label: 'Generator Format Noreg', icon: 'pin' },
               { id: 'queue' as AdminTab, label: 'Antrean Verifikasi Berkas', icon: 'fact_check', badge: metrics.pendingDocs },
-              { id: 'payments' as AdminTab, label: 'Pembayaran & VA', icon: 'payments' }
+              { id: 'payments' as AdminTab, label: 'Pembayaran & VA', icon: 'payments' },
+              { id: 'konten' as AdminTab, label: 'Konten & Halaman', icon: 'edit_note' },
+              { id: 'akun' as AdminTab, label: 'Akun Admin', icon: 'manage_accounts' }
             ]
               .filter((tab) => allowedTabs.includes(tab.id))
               .map((tab) => (
@@ -254,6 +258,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             {activeTab === 'noreg' && <NoregGeneratorTab />}
             {activeTab === 'queue' && <VerificationTab searchQuery={searchQuery} />}
             {activeTab === 'payments' && <PaymentsTab searchQuery={searchQuery} />}
+            {activeTab === 'konten' && <PortalContentTab />}
+            {activeTab === 'akun' && <AccountTab />}
           </div>
         </main>
       </div>

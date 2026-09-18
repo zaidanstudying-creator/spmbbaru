@@ -7,8 +7,13 @@ import {
   AdminUser,
   AdminRole,
   AdminTabId,
-  SystemEmbargoState
+  SystemEmbargoState,
+  LevelOption,
+  MajorOption,
+  LandingContent
 } from '../types';
+
+export const DEFAULT_ADMIN_PASSWORD = 'admin123';
 
 export const ADMIN_ROLE_TABS: Record<AdminRole, AdminTabId[]> = {
   ADMIN_SUPER: ['branding', 'waves', 'formbuilder', 'noreg', 'queue', 'payments'],
@@ -206,6 +211,103 @@ export const DEFAULT_NOREG_CONFIG: NoregFormatConfig = {
   previewExample: 'REG-2025-0842'
 };
 
+export const DEFAULT_LEVELS: LevelOption[] = [
+  {
+    id: 'MTS',
+    label: 'Madrasah Tsanawiyah (MTs)',
+    shortLabel: 'MTS',
+    stage: 'Tingkat Menengah Pertama',
+    subNote: 'Setara SMP &bull; Akreditasi A Unggul',
+    description: 'Madrasah Tsanawiyah unggulan dengan pembinaan tahfidz, dwi-bahasa, dan dasar sains.',
+    features: [
+      'Tahfidz Target 10 Juz: Pembinaan mutqin dengan tasmi\' berkala.',
+      'Penguasaan Dwi-Bahasa: Pembiasaan Bahasa Arab & Inggris aktif.',
+      'Dasar Sains & Robotika: Eksperimen laboratorium dan literasi coding.'
+    ],
+    quotaText: 'Kuota Putra: 100 &bull; Putri: 80'
+  },
+  {
+    id: 'MA',
+    label: 'Madrasah Aliyah (MA) Unggulan',
+    shortLabel: 'MA',
+    stage: 'Tingkat Menengah Atas',
+    subNote: 'Setara SMA &bull; Jurusan MIPA, IPS, & Keagamaan',
+    description: 'Madrasah Aliyah favorit dengan program sanad tahfidz 30 Juz dan persiapan PTN.',
+    features: [
+      'Program Sanad Tahfidz 30 Juz: Dibimbing masyaikh dan muhaffizh bersanad.',
+      'Persiapan PTN & Luar Negeri: Bimbingan tembus ITB, UI, UGM, Al-Azhar Mesir, & Madinah.',
+      'Kajian Turats / Kitab Kuning: Fiqih, Nahwu-Shorof, Hadits, & Ushul Fiqh mendalam.'
+    ],
+    quotaText: 'Kuota Putra: 140 &bull; Putri: 120'
+  }
+];
+
+export const DEFAULT_MAJORS: MajorOption[] = [
+  { id: 'MIPA', name: 'MIPA Unggulan', desc: 'Fokus Sains, Kedokteran & Teknologi' },
+  { id: 'IPS', name: 'Ilmu Sosial (IPS)', desc: 'Fokus Ekonomi, Pemerintahan & Bisnis' },
+  { id: 'KEAGAMAAN', name: 'Keagamaan (PK)', desc: 'Fokus Kitab Turats & Al-Azhar' },
+  { id: 'UMUM', name: 'Umum', desc: 'Program umum reguler' }
+];
+
+export const DEFAULT_LANDING_CONTENT: LandingContent = {
+  heroEyebrow: 'Sistem Penerimaan Terpadu Santri Baru (SPMB Online)',
+  heroTitle: 'Mencetak Generasi Qur\'ani, Berakhlak Mulia & Berwawasan Global',
+  heroDescription:
+    'Pendidikan holistik terintegrasi antara kurikulum nasional merdeka, sains teknologi modern, serta pembinaan tahfidz Al-Quran 30 Juz.',
+  heroImageUrl:
+    'https://lh3.googleusercontent.com/aida-public/AB6AXuApwVNrrTp4nnJXEQ1P7hcvZnY94zkERxZw8FwuumYfiiZUhwZjteqRqU_IHkfny6PSv3D5oLV8fivsDaV6lfj40zc0V9Iq-T1E8yXPfB50mUQE9chN5Z3vgd6ps95tDPTEb-DzA2WF9CwqFWysmNbSBuRWyKIdcZlbT3BsZzJ8mt4Ezp7uux8P_dHU1Vl3PytGoCYFDJLj5ihCFr5l0d6nftnTJrOrGKfnjq38IvIIjqdAVJAynhJO',
+  heroBadge: 'Pendaftaran Dibuka',
+  quotaCalloutTitle: 'Total Kuota: 440 Santri Baru',
+  quotaCalloutSub: 'Alokasi Resmi MTs (180 Santri) & MA (260 Santri) Putra/Putri',
+  programsIntro:
+    'Mengintegrasikan kurikulum Kementerian Agama RI, Kurikulum Merdeka Kemendikbud, serta kurikulum kepesantrenan terpadu 24 jam.',
+  newsIntro: 'Informasi resmi terkini seputar agenda, jadwal, dan kebijakan penerimaan santri baru.',
+  stats: [
+    { id: 'st-1', label: 'Tahun Pengalaman', value: '25+' },
+    { id: 'st-2', label: 'Santri Aktif', value: '1.200+' },
+    { id: 'st-3', label: 'Hafidz 30 Juz', value: '180+' },
+    { id: 'st-4', label: 'Tembus PTN Favorit', value: '95%' }
+  ],
+  faqs: [
+    {
+      id: 'faq-1',
+      q: 'Bagaimana alur seleksi penerimaan santri baru di Pesantren Al-Hikmah?',
+      a: 'Alur pendaftaran meliputi 5 tahap utama: (1) Pengisian formulir pendaftaran online, (2) Pembayaran biaya seleksi via Virtual Account BSI & unggah berkas, (3) Mengikuti Ujian Masuk CBT Potensi Akademik dan Tes Wawancara Tahfidz, (4) Pengumuman Kelulusan Yudisium, dan (5) Daftar ulang serta pengukuran seragam.'
+    },
+    {
+      id: 'faq-2',
+      q: 'Apakah ada program beasiswa bagi calon santri penghafal Al-Qur\'an?',
+      a: 'Ya, pada Gelombang I (Jalur Prestasi & Tahfidz), calon santri dengan hafalan Al-Qur\'an minimal 3 Juz mutqin berhak mendapatkan potongan uang pangkal hingga 50%, dan bebas uang pangkal 100% untuk hafalan 10+ Juz setelah melalui tes verifikasi sanad hafalan.'
+    },
+    {
+      id: 'faq-3',
+      q: 'Bagaimana sistem pembayaran biaya pendaftaran?',
+      a: 'Setelah formulir pendaftaran diisi, sistem akan menerbitkan nomor Virtual Account Bank Syariah Indonesia (BSI) khusus atas nama calon santri. Pembayaran dapat dilakukan melalui BSI Mobile, ATM Bersama/Prima, atau transfer dari bank manapun secara otomatis 24 jam.'
+    },
+    {
+      id: 'faq-4',
+      q: 'Apa saja materi yang diujikan dalam Tes CBT dan Wawancara?',
+      a: 'Materi seleksi terdiri dari: Tes Potensi Akademik (Matematika Dasar, IPA/IPS Terpadu, Bahasa Indonesia, Bahasa Inggris), Tes Membaca Al-Qur\'an & Praktik Ibadah, Tes Sambung Ayat bagi jalur tahfidz, serta Wawancara komitmen orang tua/wali santri.'
+    }
+  ],
+  news: [
+    {
+      id: 'news-1',
+      tag: 'Informasi',
+      title: 'Jadwal Ujian CBT Gelombang 1 Resmi Dirilis',
+      date: '2025-02-20',
+      excerpt: 'Pelaksanaan ujian masuk CBT & wawancara tahfidz Gelombang 1 akan digelar sesuai jadwal resmi. Peserta wajib membawa kartu peserta dan datang 30 menit sebelum ujian.'
+    },
+    {
+      id: 'news-2',
+      tag: 'Beasiswa',
+      title: 'Program Beasiswa Tahfidz 10 Juz Dibuka',
+      date: '2025-02-10',
+      excerpt: 'Calon santri dengan hafalan Al-Quran minimal 10 Juz berkesempatan bebas uang pangkal 100% di Gelombang 1.'
+    }
+  ]
+};
+
 export const DEFAULT_EMBARGO_STATE: SystemEmbargoState = {
   isEmbargoActive: true,
   lastReleaseDate: undefined,
@@ -219,31 +321,8 @@ export const DEFAULT_ADMIN_USERS: AdminUser[] = [
     name: 'Ust. H. Abdullah M., M.Pd.I',
     nip: '198408152008011002',
     email: 'abdullah.panitia@alhikmah.sch.id',
+    password: 'admin123',
     role: 'KETUA_PANITIA',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida/AEtjO1UZRfAtQUiH86beKGAri5kySahq2-BNgAY0S1fOHE2yeNQ_vohiMAzzanEt_4L5ZRXREhbWie2k6oR3h44gV2-sGNX2pa2VKOQo90G5Vm35tfidJ5gnTNTG2EcKTyFGFDa7lzJA4K1bUlNeILStCI4tryJ5VIDMvOufEKzO_Tg7gcOTtL95r6u9Z5nTPyuuiv4bEoKRrEN4tYfz3jvFEkmKMN5frZkNvuF2-5okpt6WABBC97gnErWQq74'
-  },
-  {
-    id: 'adm-2',
-    name: 'Usth. Siti Rahmah, S.Ag',
-    nip: '198904122014022001',
-    email: 'verifikator@alhikmah.sch.id',
-    role: 'VERIFIKATOR',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida/AEtjO1UZRfAtQUiH86beKGAri5kySahq2-BNgAY0S1fOHE2yeNQ_vohiMAzzanEt_4L5ZRXREhbWie2k6oR3h44gV2-sGNX2pa2VKOQo90G5Vm35tfidJ5gnTNTG2EcKTyFGFDa7lzJA4K1bUlNeILStCI4tryJ5VIDMvOufEKzO_Tg7gcOTtL95r6u9Z5nTPyuuiv4bEoKRrEN4tYfz3jvFEkmKMN5frZkNvuF2-5okpt6WABBC97gnErWQq74'
-  },
-  {
-    id: 'adm-3',
-    name: 'Sdr. Muhammad Zainul Muttaqin, S.E.',
-    nip: '199001252020121004',
-    email: 'bendahara@alhikmah.sch.id',
-    role: 'BENDAHARA',
-    avatarUrl: 'https://lh3.googleusercontent.com/aida/AEtjO1UZRfAtQUiH86beKGAri5kySahq2-BNgAY0S1fOHE2yeNQ_vohiMAzzanEt_4L5ZRXREhbWie2k6oR3h44gV2-sGNX2pa2VKOQo90G5Vm35tfidJ5gnTNTG2EcKTyFGFDa7lzJA4K1bUlNeILStCI4tryJ5VIDMvOufEKzO_Tg7gcOTtL95r6u9Z5nTPyuuiv4bEoKRrEN4tYfz3jvFEkmKMN5frZkNvuF2-5okpt6WABBC97gnErWQq74'
-  },
-  {
-    id: 'adm-4',
-    name: 'Tim IT SPMB Al-Hikmah',
-    nip: '202307010001',
-    email: 'admin@alhikmah.sch.id',
-    role: 'ADMIN_SUPER',
     avatarUrl: 'https://lh3.googleusercontent.com/aida/AEtjO1UZRfAtQUiH86beKGAri5kySahq2-BNgAY0S1fOHE2yeNQ_vohiMAzzanEt_4L5ZRXREhbWie2k6oR3h44gV2-sGNX2pa2VKOQo90G5Vm35tfidJ5gnTNTG2EcKTyFGFDa7lzJA4K1bUlNeILStCI4tryJ5VIDMvOufEKzO_Tg7gcOTtL95r6u9Z5nTPyuuiv4bEoKRrEN4tYfz3jvFEkmKMN5frZkNvuF2-5okpt6WABBC97gnErWQq74'
   }
 ];

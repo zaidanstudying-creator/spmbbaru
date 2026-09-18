@@ -6,7 +6,7 @@ import {
   getStatusBerkasLabel,
   getStatusPembayaranLabel
 } from '@spmb/shared';
-import { Button, Badge, Icon, Card } from '@spmb/ui';
+import { Button, Badge, Icon, Card, DocumentPreview } from '@spmb/ui';
 import { StepperProgress } from '../components/StepperProgress';
 import { DocumentUploadList } from '../components/DocumentUploadList';
 import { ExamCardModal } from '../components/ExamCardModal';
@@ -27,6 +27,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
   } = useSPMB();
 
   const [showExamModal, setShowExamModal] = useState(false);
+  const [proofError, setProofError] = useState('');
+  const [proofOk, setProofOk] = useState('');
 
   // If no logged in student, fallback to first mock student
   const santri = currentSantri || santris[0];
@@ -62,11 +64,30 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
     return 1;
   };
 
-  const handleSimulatePayment = () => {
-    updateSantriStatus(santri.id, {
-      statusPembayaran: 'LUNAS',
-      statusBerkas: 'TERVERIFIKASI'
-    });
+  const handleProofUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProofError('');
+    setProofOk('');
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      setProofError('Format harus JPG, PNG, WEBP, atau PDF.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setProofError('Ukuran file maksimal 2 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      updateSantriStatus(santri.id, {
+        paymentProofUrl: String(reader.result || ''),
+        statusPembayaran: 'MENUNGGU_KONFIRMASI'
+      });
+      setProofOk('Bukti transfer berhasil diunggah. Menunggu verifikasi panitia.');
+    };
+    reader.onerror = () => setProofError('Gagal membaca file. Coba lagi.');
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -284,16 +305,42 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
                 </div>
               </div>
 
-              {santri.statusPembayaran !== 'LUNAS' && (
-                <Button
-                  variant="amber"
-                  size="sm"
-                  className="w-full"
-                  iconLeft="payment"
-                  onClick={handleSimulatePayment}
-                >
-                  Simulasikan Pembayaran Lunas
-                </Button>
+              {santri.statusPembayaran === 'LUNAS' ? (
+                <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center gap-2">
+                  <Icon name="verified" size={16} className="text-emerald-700" />
+                  Pembayaran telah dikonfirmasi lunas oleh panitia.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Unggah Bukti Transfer (JPG/PNG/PDF, maks 2MB)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,application/pdf"
+                    onChange={handleProofUpload}
+                    className="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                  />
+                  {proofError && (
+                    <p className="text-[11px] text-rose-600 font-semibold">{proofError}</p>
+                  )}
+                  {proofOk && (
+                    <p className="text-[11px] text-emerald-700 font-semibold">{proofOk}</p>
+                  )}
+                  {santri.paymentProofUrl && (
+                    <div className="pt-1">
+                      <p className="text-[11px] font-bold text-slate-600 mb-1.5">
+                        Bukti terunggah:
+                      </p>
+                      <DocumentPreview
+                        fileUrl={santri.paymentProofUrl}
+                        fileName={`bukti-${santri.noReg}`}
+                        docName="Bukti Transfer Biaya Pendaftaran"
+                        docKey="bukti_pembayaran"
+                      />
+                    </div>
+                  )}
+                </div>
               )}
             </Card>
 

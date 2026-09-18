@@ -26,7 +26,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
       if (ok) {
         onLoginSuccess();
       } else {
-        setError('Email panitia atau NIP tidak terdaftar.');
+        setError('Email/NIP tidak terdaftar atau kata sandi salah.');
       }
     }, 400);
   };

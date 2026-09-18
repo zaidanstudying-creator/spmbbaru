@@ -2,7 +2,7 @@ import React from 'react';
 import { useSPMB, getAdminRoleAllowedTabs, canRoleManageEmbargo, getRoleLabel } from '@spmb/shared';
 import { Icon, Badge } from '@spmb/ui';
 
-export type AdminTab = 'dashboard' | 'branding' | 'waves' | 'formbuilder' | 'noreg' | 'queue' | 'payments';
+export type AdminTab = 'dashboard' | 'branding' | 'waves' | 'formbuilder' | 'noreg' | 'queue' | 'payments' | 'konten' | 'akun';
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -169,12 +169,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           ) : null}
 
           {/* Section 3: CMS Portal Publik */}
-          {showNav('branding') && (
+          {(showNav('branding') || showNav('konten')) && (
             <div className="space-y-1">
               <span className="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 CMS Portal Publik
               </span>
               <nav className="space-y-1">
+                {showNav('branding') && (
                 <button
                   onClick={() => onSelectTab('branding')}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all text-left ${
@@ -186,6 +187,33 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                   <Icon name="branding_watermark" size={18} />
                   <span>Branding & Yayasan</span>
                 </button>
+                )}
+                {showNav('konten') && (
+                <button
+                  onClick={() => onSelectTab('konten')}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all text-left ${
+                    activeTab === 'konten'
+                      ? 'bg-emerald-800 text-white shadow-sm'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <Icon name="edit_note" size={18} />
+                  <span>Konten & Halaman</span>
+                </button>
+                )}
+                {showNav('akun') && (
+                <button
+                  onClick={() => onSelectTab('akun')}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all text-left ${
+                    activeTab === 'akun'
+                      ? 'bg-emerald-800 text-white shadow-sm'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  <Icon name="manage_accounts" size={18} />
+                  <span>Akun Admin</span>
+                </button>
+                )}
               </nav>
             </div>
           )}

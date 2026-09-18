@@ -13,7 +13,13 @@ import {
   JenjangPendidikan,
   Gender,
   JurusanMA,
-  UploadedDoc
+  UploadedDoc,
+  LevelOption,
+  MajorOption,
+  LandingContent,
+  FaqItem,
+  NewsItem,
+  KeyStatItem
 } from '../types';
 import {
   DEFAULT_BRANDING,
@@ -22,7 +28,11 @@ import {
   DEFAULT_NOREG_CONFIG,
   DEFAULT_EMBARGO_STATE,
   DEFAULT_ADMIN_USERS,
-  DEFAULT_SANTRIS
+  DEFAULT_SANTRIS,
+  DEFAULT_LEVELS,
+  DEFAULT_MAJORS,
+  DEFAULT_LANDING_CONTENT,
+  DEFAULT_ADMIN_PASSWORD
 } from '../constants/defaults';
 import { generateNoreg, generateVirtualAccount } from '../utils';
 
@@ -70,6 +80,7 @@ interface SPMBContextType {
       yudisiumScore?: number;
       catatanPanitia?: string;
       paidAt?: string;
+      paymentProofUrl?: string;
     }
   ) => void;
   uploadSantriDoc: (santriId: string, docKey: string, fileInfo: UploadedDoc) => void;
@@ -88,6 +99,24 @@ interface SPMBContextType {
   adminUsers: AdminUser[];
   loginAdmin: (emailOrNip: string, pass?: string) => boolean;
   logoutAdmin: () => void;
+  updateAdminUser: (adminId: string, updates: Partial<AdminUser>) => void;
+  addAdminUser: (admin: AdminUser) => void;
+
+  levels: LevelOption[];
+  updateLevel: (levelId: JenjangPendidikan, updates: Partial<LevelOption>) => void;
+  majors: MajorOption[];
+  addMajor: (major: MajorOption) => void;
+  updateMajor: (majorId: string, updates: Partial<MajorOption>) => void;
+  deleteMajor: (majorId: string) => void;
+
+  landingContent: LandingContent;
+  updateLandingContent: (updates: Partial<LandingContent>) => void;
+  upsertFaq: (faq: FaqItem) => void;
+  deleteFaq: (faqId: string) => void;
+  upsertNews: (news: NewsItem) => void;
+  deleteNews: (newsId: string) => void;
+  upsertStat: (stat: KeyStatItem) => void;
+  deleteStat: (statId: string) => void;
 
   metrics: {
     totalApplicants: number;
@@ -133,6 +162,14 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [embargoState, setEmbargoState] = useState<SystemEmbargoState>(
     initial?.embargoState || DEFAULT_EMBARGO_STATE
   );
+  const [levels, setLevels] = useState<LevelOption[]>(initial?.levels || DEFAULT_LEVELS);
+  const [majors, setMajors] = useState<MajorOption[]>(initial?.majors || DEFAULT_MAJORS);
+  const [landingContent, setLandingContent] = useState<LandingContent>(
+    initial?.landingContent || DEFAULT_LANDING_CONTENT
+  );
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(
+    initial?.adminUsers?.length ? initial.adminUsers : DEFAULT_ADMIN_USERS
+  );
 
   // Auth States
   const [currentSantri, setCurrentSantriState] = useState<SantriData | null>(() => {
@@ -141,9 +178,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return list[0] || null;
   });
 
-  const [currentAdmin, setCurrentAdminState] = useState<AdminUser | null>(() => {
-    return DEFAULT_ADMIN_USERS[0];
-  });
+  const [currentAdmin, setCurrentAdminState] = useState<AdminUser | null>(null);
 
   // Save to localStorage whenever core state updates
   useEffect(() => {
@@ -153,14 +188,29 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       docRequirements,
       noregConfig,
       santris,
-      embargoState
+      embargoState,
+      levels,
+      majors,
+      landingContent,
+      adminUsers
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch (e) {
       console.error('Failed to save SPMB data:', e);
     }
-  }, [branding, waves, docRequirements, noregConfig, santris, embargoState]);
+  }, [
+    branding,
+    waves,
+    docRequirements,
+    noregConfig,
+    santris,
+    embargoState,
+    levels,
+    majors,
+    landingContent,
+    adminUsers
+  ]);
 
   // Handle multi-tab sync
   useEffect(() => {
@@ -174,6 +224,10 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (parsed.noregConfig) setNoregConfig(parsed.noregConfig);
           if (parsed.santris) setSantris(parsed.santris);
           if (parsed.embargoState) setEmbargoState(parsed.embargoState);
+          if (parsed.levels) setLevels(parsed.levels);
+          if (parsed.majors) setMajors(parsed.majors);
+          if (parsed.landingContent) setLandingContent(parsed.landingContent);
+          if (parsed.adminUsers?.length) setAdminUsers(parsed.adminUsers);
         } catch (err) {
           console.error(err);
         }
@@ -316,6 +370,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       yudisiumScore?: number;
       catatanPanitia?: string;
       paidAt?: string;
+      paymentProofUrl?: string;
     }
   ) => {
     setSantris((prev) =>
@@ -430,18 +485,90 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCurrentSantriState(santri);
   };
 
-  const loginAdmin = (emailOrNip: string, _pass?: string): boolean => {
+  const loginAdmin = (emailOrNip: string, pass?: string): boolean => {
     const clean = emailOrNip.trim().toLowerCase();
-    const found =
-      DEFAULT_ADMIN_USERS.find(
-        (u) => u.email.toLowerCase() === clean || u.nip.toLowerCase() === clean
-      ) || DEFAULT_ADMIN_USERS[0];
+    const found = adminUsers.find(
+      (u) => u.email.toLowerCase() === clean || u.nip.toLowerCase() === clean
+    );
+    if (!found) return false;
+    const expected = found.password || DEFAULT_ADMIN_PASSWORD;
+    if (pass && pass !== expected) return false;
     setCurrentAdminState(found);
     return true;
   };
 
   const logoutAdmin = () => {
     setCurrentAdminState(null);
+  };
+
+  const updateAdminUser = (adminId: string, updates: Partial<AdminUser>) => {
+    setAdminUsers((prev) =>
+      prev.map((u) => {
+        const updated = { ...u, ...updates };
+        if (currentAdmin?.id === adminId) setCurrentAdminState(updated);
+        return updated;
+      })
+    );
+  };
+
+  const addAdminUser = (admin: AdminUser) => {
+    setAdminUsers((prev) => [...prev, admin]);
+  };
+
+  const updateLevel = (levelId: JenjangPendidikan, updates: Partial<LevelOption>) => {
+    setLevels((prev) => prev.map((l) => (l.id === levelId ? { ...l, ...updates } : l)));
+  };
+
+  const addMajor = (major: MajorOption) => {
+    setMajors((prev) => [...prev, major]);
+  };
+
+  const updateMajor = (majorId: string, updates: Partial<MajorOption>) => {
+    setMajors((prev) => prev.map((m) => (m.id === majorId ? { ...m, ...updates } : m)));
+  };
+
+  const deleteMajor = (majorId: string) => {
+    setMajors((prev) => prev.filter((m) => m.id !== majorId));
+  };
+
+  const updateLandingContent = (updates: Partial<LandingContent>) => {
+    setLandingContent((prev) => ({ ...prev, ...updates }));
+  };
+
+  const upsertFaq = (faq: FaqItem) => {
+    setLandingContent((prev) => {
+      const idx = prev.faqs.findIndex((f) => f.id === faq.id);
+      const faqs = idx >= 0 ? prev.faqs.map((f) => (f.id === faq.id ? faq : f)) : [...prev.faqs, faq];
+      return { ...prev, faqs };
+    });
+  };
+
+  const deleteFaq = (faqId: string) => {
+    setLandingContent((prev) => ({ ...prev, faqs: prev.faqs.filter((f) => f.id !== faqId) }));
+  };
+
+  const upsertNews = (news: NewsItem) => {
+    setLandingContent((prev) => {
+      const idx = prev.news.findIndex((n) => n.id === news.id);
+      const list = idx >= 0 ? prev.news.map((n) => (n.id === news.id ? news : n)) : [{ ...news, id: news.id }, ...prev.news];
+      return { ...prev, news: list };
+    });
+  };
+
+  const deleteNews = (newsId: string) => {
+    setLandingContent((prev) => ({ ...prev, news: prev.news.filter((n) => n.id !== newsId) }));
+  };
+
+  const upsertStat = (stat: KeyStatItem) => {
+    setLandingContent((prev) => {
+      const idx = prev.stats.findIndex((s) => s.id === stat.id);
+      const stats = idx >= 0 ? prev.stats.map((s) => (s.id === stat.id ? stat : s)) : [...prev.stats, stat];
+      return { ...prev, stats };
+    });
+  };
+
+  const deleteStat = (statId: string) => {
+    setLandingContent((prev) => ({ ...prev, stats: prev.stats.filter((s) => s.id !== statId) }));
   };
 
   const resetAllToFactoryDefaults = () => {
@@ -452,8 +579,12 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setNoregConfig(DEFAULT_NOREG_CONFIG);
     setSantris(DEFAULT_SANTRIS);
     setEmbargoState(DEFAULT_EMBARGO_STATE);
+    setLevels(DEFAULT_LEVELS);
+    setMajors(DEFAULT_MAJORS);
+    setLandingContent(DEFAULT_LANDING_CONTENT);
+    setAdminUsers(DEFAULT_ADMIN_USERS);
     setCurrentSantriState(DEFAULT_SANTRIS[0]);
-    setCurrentAdminState(DEFAULT_ADMIN_USERS[0]);
+    setCurrentAdminState(null);
   };
 
   // Metrics
@@ -505,9 +636,25 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         logoutSantri,
         setCurrentSantri,
         currentAdmin,
-        adminUsers: DEFAULT_ADMIN_USERS,
+        adminUsers,
         loginAdmin,
         logoutAdmin,
+        updateAdminUser,
+        addAdminUser,
+        levels,
+        updateLevel,
+        majors,
+        addMajor,
+        updateMajor,
+        deleteMajor,
+        landingContent,
+        updateLandingContent,
+        upsertFaq,
+        deleteFaq,
+        upsertNews,
+        deleteNews,
+        upsertStat,
+        deleteStat,
         metrics,
         resetAllToFactoryDefaults
       }}

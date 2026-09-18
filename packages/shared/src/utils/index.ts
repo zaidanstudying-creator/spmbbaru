@@ -220,16 +220,17 @@ export function getPublicKelulusanStatus(
 }
 
 export function getAdminRoleAllowedTabs(role?: string): string[] {
+  const common = ['konten', 'akun'];
   switch (role) {
     case 'KETUA_PANITIA':
     case 'ADMIN_SUPER':
-      return ['branding', 'waves', 'formbuilder', 'noreg', 'queue', 'payments'];
+      return ['branding', 'waves', 'formbuilder', 'noreg', 'queue', 'payments', ...common];
     case 'VERIFIKATOR':
-      return ['queue'];
+      return ['queue', ...common];
     case 'BENDAHARA':
-      return ['payments'];
+      return ['payments', ...common];
     default:
-      return ['queue'];
+      return ['queue', ...common];
   }
 }
 

@@ -7,27 +7,9 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
-  const { branding, waves, docRequirements } = useSPMB();
+  const { branding, waves, docRequirements, landingContent, levels } = useSPMB();
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
-
-  const faqs = [
-    {
-      q: 'Bagaimana alur seleksi penerimaan santri baru di Pesantren Al-Hikmah?',
-      a: 'Alur pendaftaran meliputi 5 tahap utama: (1) Pengisian formulir pendaftaran online, (2) Pembayaran biaya seleksi via Virtual Account BSI & unggah berkas, (3) Mengikuti Ujian Masuk CBT Potensi Akademik dan Tes Wawancara Tahfidz, (4) Pengumuman Kelulusan Yudisium, dan (5) Daftar ulang serta pengukuran seragam.'
-    },
-    {
-      q: 'Apakah ada program beasiswa bagi calon santri penghafal Al-Qur\'an?',
-      a: 'Ya, pada Gelombang I (Jalur Prestasi & Tahfidz), calon santri dengan hafalan Al-Qur\'an minimal 3 Juz mutqin berhak mendapatkan potongan uang pangkal hingga 50%, dan bebas uang pangkal 100% untuk hafalan 10+ Juz setelah melalui tes verifikasi sanad hafalan.'
-    },
-    {
-      q: 'Bagaimana sistem pembayaran biaya pendaftaran?',
-      a: 'Setelah formulir pendaftaran diisi, sistem akan menerbitkan nomor Virtual Account Bank Syariah Indonesia (BSI) khusus atas nama calon santri. Pembayaran dapat dilakukan melalui BSI Mobile, ATM Bersama/Prima, atau transfer dari bank manapun secara otomatis 24 jam.'
-    },
-    {
-      q: 'Apa saja materi yang diujikan dalam Tes CBT dan Wawancara?',
-      a: 'Materi seleksi terdiri dari: Tes Potensi Akademik (Matematika Dasar, IPA/IPS Terpadu, Bahasa Indonesia, Bahasa Inggris), Tes Membaca Al-Qur\'an & Praktik Ibadah, Tes Sambung Ayat bagi jalur tahfidz, serta Wawancara komitmen orang tua/wali santri.'
-    }
-  ];
+  const faqs = landingContent.faqs;
 
   return (
     <div className="flex flex-col w-full">
@@ -65,7 +47,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 {branding.accreditation}
               </span>
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-amber-950 text-xs font-bold">
-                Pendaftaran Dibuka
+                {landingContent.heroBadge}
               </span>
             </div>
           </div>
@@ -76,15 +58,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-900/90 border border-emerald-700/60 text-emerald-300 text-xs font-semibold shadow-inner">
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                <span>Sistem Penerimaan Terpadu Santri Baru (SPMB Online)</span>
+                <span>{landingContent.heroEyebrow}</span>
               </div>
 
               <h1 className="font-serif text-4xl sm:text-5xl lg:text-5xl font-bold text-white leading-tight tracking-tight">
-                {branding.tagline}
+                {landingContent.heroTitle || branding.tagline}
               </h1>
 
               <p className="text-base sm:text-lg text-emerald-100/90 max-w-2xl leading-relaxed">
-                {branding.description}
+                {landingContent.heroDescription || branding.description}
               </p>
 
               <div className="flex flex-wrap items-center gap-4 pt-2">
@@ -119,10 +101,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                       Kapasitas Penuh Asrama
                     </span>
                     <span className="font-serif text-xl font-bold text-white">
-                      Total Kuota: 440 Santri Baru
+                      {landingContent.quotaCalloutTitle}
                     </span>
                     <span className="text-xs text-emerald-200/70 block mt-0.5">
-                      Alokasi Resmi MTs (180 Santri) & MA (260 Santri) Putra/Putri
+                      {landingContent.quotaCalloutSub.replace(/&bull;/g, '•')}
                     </span>
                   </div>
                 </div>
@@ -139,7 +121,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white/5 p-2 border border-white/10">
                 <div className="relative h-80 sm:h-96 rounded-xl overflow-hidden">
                   <img
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuApwVNrrTp4nnJXEQ1P7hcvZnY94zkERxZw8FwuumYfiiZUhwZjteqRqU_IHkfny6PSv3D5oLV8fivsDaV6lfj40zc0V9Iq-T1E8yXPfB50mUQE9chN5Z3vgd6ps95tDPTEb-DzA2WF9CwqFWysmNbSBuRWyKIdcZlbT3BsZzJ8mt4Ezp7uux8P_dHU1Vl3PytGoCYFDJLj5ihCFr5l0d6nftnTJrOrGKfnjq38IvIIjqdAVJAynhJO"
+                    src={landingContent.heroImageUrl}
                     alt="Santri Al-Hikmah"
                     className="w-full h-full object-cover"
                   />
@@ -185,94 +167,96 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               Jenjang Pendidikan & Program Unggulan
             </h2>
             <p className="text-slate-600 text-base mt-3">
-              Mengintegrasikan kurikulum Kementerian Agama RI, Kurikulum Merdeka Kemendikbud, serta kurikulum kepesantrenan terpadu 24 jam.
+              {landingContent.programsIntro}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Card 1: MTs */}
-            <Card hoverEffect className="space-y-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-                    Tingkat Menengah Pertama
-                  </span>
-                  <h3 className="font-serif text-2xl font-bold text-slate-900 mt-1">
-                    Madrasah Tsanawiyah (MTs)
-                  </h3>
-                  <p className="text-sm text-slate-500 mt-1">Setara SMP &bull; Akreditasi A Unggul</p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                  <Icon name="school" size={28} />
-                </div>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3">
-                  <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-700"><strong>Tahfidz Target 10 Juz:</strong> Pembinaan mutqin dengan tasmi' berkala.</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-700"><strong>Penguasaan Dwi-Bahasa:</strong> Pembiasaan Bahasa Arab & Inggris aktif.</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-700"><strong>Dasar Sains & Robotika:</strong> Eksperimen laboratorium dan literasi coding.</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500">Kuota Putra: 100 &bull; Putri: 80</span>
-                <Button variant="outline" size="sm" onClick={() => onNavigate('register')}>
-                  Pilih MTs &rarr;
-                </Button>
-              </div>
-            </Card>
-
-            {/* Card 2: MA */}
-            <Card hoverEffect className="space-y-6 border-emerald-300 ring-1 ring-emerald-600/20">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-                      Tingkat Menengah Atas
-                    </span>
-                    <Badge variant="amber" size="sm">Favorit</Badge>
+            {levels.map((lvl, idx) => {
+              const isSecondary = idx % 2 === 1;
+              return (
+                <Card
+                  key={lvl.id}
+                  hoverEffect
+                  className={`space-y-6 ${isSecondary ? 'border-emerald-300 ring-1 ring-emerald-600/20' : ''}`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
+                          {lvl.stage}
+                        </span>
+                        {isSecondary && <Badge variant="amber" size="sm">Favorit</Badge>}
+                      </div>
+                      <h3 className="font-serif text-2xl font-bold text-slate-900 mt-1">
+                        {lvl.label}
+                      </h3>
+                      <p className="text-sm text-slate-500 mt-1">{lvl.subNote.replace(/&bull;/g, '•')}</p>
+                    </div>
+                    <div
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        isSecondary ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      <Icon name={isSecondary ? 'military_tech' : 'school'} size={28} />
+                    </div>
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-slate-900 mt-1">
-                    Madrasah Aliyah (MA) Unggulan
-                  </h3>
-                  <p className="text-sm text-slate-500 mt-1">Setara SMA &bull; Jurusan MIPA, IPS, & Keagamaan</p>
-                </div>
-                <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center">
-                  <Icon name="military_tech" size={28} />
-                </div>
-              </div>
 
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3">
-                  <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-700"><strong>Program Sanad Tahfidz 30 Juz:</strong> Dibimbing masyaikh dan muhaffizh bersanad.</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-700"><strong>Persiapan PTN & Luar Negeri:</strong> Bimbingan tembus ITB, UI, UGM, Al-Azhar Mesir, & Madinah.</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-700"><strong>Kajian Turats / Kitab Kuning:</strong> Fiqih, Nahwu-Shorof, Hadits, & Ushul Fiqh mendalam.</span>
-                </div>
-              </div>
+                  <div className="space-y-3 pt-2">
+                    {lvl.features.map((feat, fi) => {
+                      const [head, ...rest] = feat.split(':');
+                      return (
+                        <div key={fi} className="flex items-start gap-3">
+                          <Icon name="check_circle" size={18} className="text-emerald-600 mt-0.5 shrink-0" />
+                          <span className="text-sm text-slate-700">
+                            {rest.length > 0 ? (
+                              <>
+                                <strong>{head}:</strong>{rest.join(':')}
+                              </>
+                            ) : (
+                              feat
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500">Kuota Putra: 140 &bull; Putri: 120</span>
-                <Button variant="primary" size="sm" onClick={() => onNavigate('register')}>
-                  Pilih MA &rarr;
-                </Button>
-              </div>
-            </Card>
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500">
+                      {lvl.quotaText.replace(/&bull;/g, '•')}
+                    </span>
+                    <Button
+                      variant={isSecondary ? 'primary' : 'outline'}
+                      size="sm"
+                      onClick={() => onNavigate('register')}
+                    >
+                      Pilih {lvl.shortLabel} &rarr;
+                    </Button>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
+
+          {/* Statistik Singkat */}
+          {landingContent.stats.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+              {landingContent.stats.map((st) => (
+                <div
+                  key={st.id}
+                  className="p-5 rounded-2xl bg-white border border-slate-200 text-center shadow-sm"
+                >
+                  <span className="font-serif text-3xl font-bold text-emerald-900 block">
+                    {st.value}
+                  </span>
+                  <span className="text-xs text-slate-500 font-semibold mt-1 block">
+                    {st.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -487,6 +471,40 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
           </div>
         </div>
       </section>
+
+      {/* 4.5 BERITA & PENGUMUMAN */}
+      {landingContent.news.length > 0 && (
+        <section className="py-20 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <span className="text-xs uppercase tracking-wider text-emerald-800 font-bold bg-emerald-100 px-3 py-1 rounded-full">
+                Kabar Pesantren
+              </span>
+              <h2 className="font-serif text-3xl font-bold text-slate-900 mt-3">
+                Berita & Pengumuman Terbaru
+              </h2>
+              <p className="text-slate-600 text-sm mt-2">{landingContent.newsIntro}</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {landingContent.news.map((n) => (
+                <Card key={n.id} hoverEffect className="p-6 space-y-3 flex flex-col">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="emerald" size="sm">{n.tag}</Badge>
+                    <span className="text-[11px] text-slate-400 font-semibold">
+                      {formatDateIndo(n.date)}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-lg font-bold text-slate-900 leading-snug">
+                    {n.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed flex-1">{n.excerpt}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 5. FAQ SECTION */}
       <section id="faq-dan-bantuan" className="py-20 bg-white border-t border-slate-200">

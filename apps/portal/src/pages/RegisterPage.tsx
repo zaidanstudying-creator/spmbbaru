@@ -14,7 +14,7 @@ interface RegisterPageProps {
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
-  const { branding, waves, registerNewSantri, setCurrentSantri } = useSPMB();
+  const { branding, waves, registerNewSantri, setCurrentSantri, levels, majors } = useSPMB();
 
   const [step, setStep] = useState<number>(1);
   const [createdSantri, setCreatedSantri] = useState<SantriData | null>(null);
@@ -170,43 +170,27 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                   Pilihan Jenjang Pendidikan *
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div
-                    onClick={() => setFormData({ ...formData, level: 'MTS' })}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      formData.level === 'MTS'
-                        ? 'border-emerald-700 bg-emerald-50/50 shadow-sm'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-serif font-bold text-lg text-slate-900">Madrasah Tsanawiyah (MTs)</span>
-                      <Icon
-                        name={formData.level === 'MTS' ? 'radio_button_checked' : 'radio_button_unchecked'}
-                        size={20}
-                        className={formData.level === 'MTS' ? 'text-emerald-700' : 'text-slate-400'}
-                      />
+                  {levels.map((lvl) => (
+                    <div
+                      key={lvl.id}
+                      onClick={() => setFormData({ ...formData, level: lvl.id })}
+                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                        formData.level === lvl.id
+                          ? 'border-emerald-700 bg-emerald-50/50 shadow-sm'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-serif font-bold text-lg text-slate-900">{lvl.label}</span>
+                        <Icon
+                          name={formData.level === lvl.id ? 'radio_button_checked' : 'radio_button_unchecked'}
+                          size={20}
+                          className={formData.level === lvl.id ? 'text-emerald-700' : 'text-slate-400'}
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500">{lvl.subNote.replace(/&bull;/g, '•')}</p>
                     </div>
-                    <p className="text-xs text-slate-500">Setara SMP (Kelas 7, 8, 9) Asrama Putra/Putri</p>
-                  </div>
-
-                  <div
-                    onClick={() => setFormData({ ...formData, level: 'MA' })}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      formData.level === 'MA'
-                        ? 'border-emerald-700 bg-emerald-50/50 shadow-sm'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-serif font-bold text-lg text-slate-900">Madrasah Aliyah (MA)</span>
-                      <Icon
-                        name={formData.level === 'MA' ? 'radio_button_checked' : 'radio_button_unchecked'}
-                        size={20}
-                        className={formData.level === 'MA' ? 'text-emerald-700' : 'text-slate-400'}
-                      />
-                    </div>
-                    <p className="text-xs text-slate-500">Setara SMA (Kelas 10, 11, 12) Unggulan Sains & Agama</p>
-                  </div>
+                  ))}
                 </div>
               </div>
 
@@ -217,11 +201,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
                     Pilihan Peminatan / Jurusan MA *
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      { id: 'MIPA', name: 'MIPA Unggulan', desc: 'Fokus Sains, Kedokteran & Teknologi' },
-                      { id: 'KEAGAMAAN', name: 'Keagamaan (PK)', desc: 'Fokus Kitab Turats & Al-Azhar' },
-                      { id: 'IPS', name: 'IPS Sosial Humaniora', desc: 'Fokus Ekonomi & Hubungan Internasional' }
-                    ].map((j) => (
+                    {majors.map((j) => (
                       <div
                         key={j.id}
                         onClick={() => setFormData({ ...formData, jurusan: j.id as JurusanMA })}

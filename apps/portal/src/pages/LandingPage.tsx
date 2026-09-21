@@ -12,6 +12,7 @@ interface LandingPageProps {
   onNavigate: (view: 'landing' | 'register' | 'check-status' | 'login' | 'dashboard') => void;
 }
 
+const WA_ADMIN_NUMBER = '085158512007';
 const WA_MESSAGE = 'Assalamualaikum, saya ingin bertanya lebih lanjut tentang spmb atau tentang pesantren';
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
@@ -600,12 +601,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
                 </h3>
                 <p className="text-sm text-slate-600 mt-1">{landingContent.helpSubtitle}</p>
                 <p className="text-xs text-slate-500 mt-1 font-mono">
-                  Chat Panitia: {landingContent.waNumber}
+                  Chat Panitia: {WA_ADMIN_NUMBER}
                 </p>
               </div>
             </div>
             <a
-              href={formatWhatsAppLink(landingContent.waNumber, WA_MESSAGE)}
+href={formatWhatsAppLink(WA_ADMIN_NUMBER, WA_MESSAGE)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] text-white text-sm font-bold shadow-lg hover:bg-[#1ebe5b] transition-colors shrink-0"

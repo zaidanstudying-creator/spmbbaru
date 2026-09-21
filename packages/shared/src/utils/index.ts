@@ -219,11 +219,15 @@ export function getPublicKelulusanStatus(
   };
 }
 
-export function formatWhatsAppLink(raw: string): string {
+export function formatWhatsAppLink(raw: string, message?: string): string {
   const digits = (raw || '').replace(/[^0-9]/g, '');
   if (!digits) return 'https://wa.me/';
   const intl = digits.startsWith('0') ? `62${digits.slice(1)}` : digits.startsWith('62') ? digits : `62${digits}`;
-  return `https://wa.me/${intl}`;
+  const base = `https://wa.me/${intl}`;
+  if (message && message.trim()) {
+    return `${base}?text=${encodeURIComponent(message.trim())}`;
+  }
+  return base;
 }
 
 export function getAdminRoleAllowedTabs(role?: string): string[] {

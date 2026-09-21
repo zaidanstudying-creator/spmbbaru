@@ -119,7 +119,7 @@ export const PortalContentTab: React.FC = () => {
           </div>
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-700">Nomor WhatsApp Panitia</label>
-            <input className={inputCls} value={landingContent.waNumber} onChange={(e) => updateLandingContent({ waNumber: e.target.value })} placeholder="cth: 0862563784" />
+            <input className={inputCls} value={landingContent.waNumber} onChange={(e) => updateLandingContent({ waNumber: e.target.value })} placeholder="cth: 085158512007" />
           </div>
           <div className="md:col-span-2 space-y-1">
             <label className="text-xs font-bold text-slate-700">Sub Judul Bantuan</label>

@@ -12,6 +12,8 @@ interface LandingPageProps {
   onNavigate: (view: 'landing' | 'register' | 'check-status' | 'login' | 'dashboard') => void;
 }
 
+const WA_MESSAGE = 'Assalamualaikum, saya ingin bertanya lebih lanjut tentang spmb atau tentang pesantren';
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
   const { branding, waves, docRequirements, landingContent, levels } = useSPMB();
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
@@ -21,13 +23,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
     <div className="flex flex-col w-full">
       {/* WhatsApp Float Button */}
       <a
-        href={formatWhatsAppLink(landingContent.waNumber)}
+        href={formatWhatsAppLink(landingContent.waNumber, WA_MESSAGE)}
         target="_blank"
         rel="noreferrer"
-        aria-label="Chat Panitia via WhatsApp"
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#25D366] text-white shadow-xl hover:scale-110 hover:bg-[#1ebe5b] transition-all flex items-center justify-center"
+        aria-label="Tanya Admin via WhatsApp"
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 pl-3 pr-4 h-14 rounded-full bg-[#25D366] text-white shadow-xl hover:scale-105 hover:bg-[#1ebe5b] transition-all"
       >
         <WhatsAppIcon size={30} />
+        <span className="text-sm font-bold">Tanya Admin</span>
       </a>
 
       {/* 1. HERO SECTION */}
@@ -602,7 +605,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
               </div>
             </div>
             <a
-              href={formatWhatsAppLink(landingContent.waNumber)}
+              href={formatWhatsAppLink(landingContent.waNumber, WA_MESSAGE)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] text-white text-sm font-bold shadow-lg hover:bg-[#1ebe5b] transition-colors shrink-0"

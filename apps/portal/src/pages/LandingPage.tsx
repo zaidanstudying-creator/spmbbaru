@@ -24,7 +24,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
     <div className="flex flex-col w-full">
       {/* WhatsApp Float Button */}
       <a
-        href={formatWhatsAppLink(landingContent.waNumber, WA_MESSAGE)}
+        href={formatWhatsAppLink(WA_ADMIN_NUMBER, WA_MESSAGE)}
         target="_blank"
         rel="noreferrer"
         aria-label="Tanya Admin via WhatsApp"

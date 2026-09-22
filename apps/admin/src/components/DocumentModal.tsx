@@ -9,7 +9,7 @@ interface DocumentModalProps {
 }
 
 export const DocumentModal: React.FC<DocumentModalProps> = ({ isOpen, onClose, santri }) => {
-  const { docRequirements, updateSantriStatus, verifySantriDoc } = useSPMB();
+  const { docRequirements, updateSantriStatus, verifySantriDoc, customFormFields } = useSPMB();
   const [rejectNote, setRejectNote] = useState('');
   const [activeDocKey, setActiveDocKey] = useState<string | null>(null);
   const [previewDocKey, setPreviewDocKey] = useState<string | null>(null);
@@ -65,6 +65,54 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ isOpen, onClose, s
             {berkasStatus.label}
           </Badge>
         </div>
+
+        {/* Answers of Custom Form Fields */}
+        {customFormFields.length > 0 && (
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif font-bold text-sm text-slate-800">
+                Jawaban Formulir Tambahan ({Object.keys(santri.extraFields || {}).filter((k) => (santri.extraFields || {})[k]).length} Terisi)
+              </h4>
+              <Badge variant="sky" size="sm">
+                {customFormFields.length} Field Terdaftar
+              </Badge>
+            </div>
+
+            {customFormFields.length === 0 ? (
+              <p className="text-xs text-slate-400">Tidak ada field formulir tambahan terdaftar.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {customFormFields.map((f) => {
+                  const answer = (santri.extraFields || {})[f.key] || '';
+                  const filled = answer.trim().length > 0;
+                  return (
+                    <div key={f.id} className="bg-white rounded-lg border border-slate-200 p-2.5">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        {f.label}
+                        {f.isRequired ? '' : ' (opsional)'}
+                      </span>
+                      {filled ? (
+                        f.type === 'select' ? (
+                          <span className="inline-flex mt-1 text-xs font-bold text-violet-800 bg-violet-100 px-2 py-0.5 rounded-full">
+                            {answer}
+                          </span>
+                        ) : (
+                          <span className="mt-1 block text-xs font-semibold text-slate-800 break-words">
+                            {answer}
+                          </span>
+                        )
+                      ) : (
+                        <span className="mt-1 block text-[11px] italic text-slate-400">
+                          Belum diisi
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Document Checklist */}
         <div className="space-y-3">

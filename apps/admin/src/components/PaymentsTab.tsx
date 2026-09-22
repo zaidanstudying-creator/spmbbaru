@@ -149,32 +149,24 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-center whitespace-nowrap">
-                      <div className="flex items-center justify-center gap-2">
-                        {s.paymentProofUrl ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            iconLeft="visibility"
-                            onClick={() => setProofSantri(s)}
-                          >
-                            Lihat Bukti
-                          </Button>
-                        ) : (
-                          <span className="text-[10px] text-slate-400 italic">Tanpa bukti</span>
-                        )}
-                        {isLunas ? (
-                          <span className="text-[11px] text-slate-400 italic">Lunas</span>
-                        ) : (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            iconLeft="verified"
-                            onClick={() => confirmPaid(s)}
-                          >
-                            Konfirmasi Lunas
-                          </Button>
-                        )}
-                      </div>
+                      {isLunas ? (
+                        <span className="inline-flex items-center gap-1 text-emerald-700 text-[11px] font-bold">
+                          <Icon name="verified" size={13} /> Lunas
+                        </span>
+                      ) : s.paymentProofUrl ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          iconLeft="visibility"
+                          onClick={() => setProofSantri(s)}
+                        >
+                          Cek Bukti & Verifikasi
+                        </Button>
+                      ) : (
+                        <span className="text-[10px] text-slate-400 italic">
+                          Menunggu bukti transfer dari santri
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -207,6 +199,16 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
               docKey="bukti_pembayaran"
               uploadDate={proofSantri.paidAt}
             />
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+              <div className="flex items-start gap-2">
+                <Icon name="fact_check" size={16} className="shrink-0 mt-0.5" />
+                <div>
+                  <strong>Cek ulang sebelum ACC:</strong> pastikan bukti atas nama calon santri yang
+                  bersangkutan, nominal sesuai tagihan, Virtual Account tujuan cocok, dan tanggal
+                  transfer valid. Baru kemudian konfirmasi lunas.
+                </div>
+              </div>
+            </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
               <span className="text-slate-600">
                 Nominal tagihan:{' '}
@@ -214,7 +216,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
               </span>
               {proofSantri.statusPembayaran !== 'LUNAS' && (
                 <Button
-                  variant="secondary"
+                  variant="primary"
                   size="sm"
                   iconLeft="verified"
                   onClick={() => {
@@ -222,7 +224,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                     setProofSantri(null);
                   }}
                 >
-                  Konfirmasi Lunas
+                  ACC, Konfirmasi Lunas
                 </Button>
               )}
             </div>

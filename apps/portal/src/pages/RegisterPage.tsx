@@ -14,7 +14,8 @@ interface RegisterPageProps {
 }
 
 export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
-  const { branding, waves, registerNewSantri, setCurrentSantri, levels, majors } = useSPMB();
+  const { branding, waves, registerNewSantri, setCurrentSantri, levels, majors, customFormFields } =
+    useSPMB();
 
   const [step, setStep] = useState<number>(1);
   const [createdSantri, setCreatedSantri] = useState<SantriData | null>(null);
@@ -35,7 +36,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
     prevSchool: '',
     parentName: '',
     parentPhone: '',
-    address: ''
+    address: '',
+    extra: {} as Record<string, string>
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -56,6 +58,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
       if (!formData.birthPlace.trim()) err.birthPlace = 'Tempat lahir wajib diisi';
       if (!formData.birthDate) err.birthDate = 'Tanggal lahir wajib diisi';
       if (!formData.prevSchool.trim()) err.prevSchool = 'Asal sekolah wajib diisi';
+      for (const f of customFormFields) {
+        const v = (formData.extra[f.id] || '').trim();
+        if (f.type === 'select' && f.isRequired && !v) {
+          err[`extra_${f.id}`] = 'Pilih salah satu opsi yang tersedia';
+        } else if (f.type !== 'select' && f.isRequired && !v) {
+          err[`extra_${f.id}`] = 'Wajib diisi';
+        } else if (f.minLength && v.length < f.minLength) {
+          err[`extra_${f.id}`] = `Minimal ${f.minLength} ${f.type === 'number' ? 'digit' : 'karakter'}`;
+        }
+      }
     } else if (step === 3) {
       if (!formData.parentName.trim()) err.parentName = 'Nama orang tua/wali wajib diisi';
       if (!formData.parentPhone.trim() || formData.parentPhone.length < 9)
@@ -95,11 +107,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onNavigate }) => {
       parentName: formData.parentName,
       parentPhone: formData.parentPhone,
       address: formData.address,
-      prevSchool: formData.prevSchool,
-      level: formData.level,
-      jurusan: formData.level === 'MA' ? formData.jurusan : undefined,
-      waveId: formData.waveId
-    });
+prevSchool: formData.prevSchool,
+    level: formData.level,
+    jurusan: formData.level === 'MA' ? formData.jurusan : undefined,
+    waveId: formData.waveId,
+    extraFields: Object.fromEntries(
+      customFormFields
+        .map((f) => [f.key, (formData.extra[f.id] || '').trim()])
+        .filter(([, v]) => (v as string).length > 0)
+    )
+  });
 
     setCreatedSantri(newSantri);
     setStep(5); // Success step

@@ -19,7 +19,8 @@ import {
   LandingContent,
   FaqItem,
   NewsItem,
-  KeyStatItem
+  KeyStatItem,
+  FormField
 } from '../types';
 import {
   DEFAULT_BRANDING,
@@ -32,7 +33,8 @@ import {
   DEFAULT_LEVELS,
   DEFAULT_MAJORS,
   DEFAULT_LANDING_CONTENT,
-  DEFAULT_ADMIN_PASSWORD
+  DEFAULT_ADMIN_PASSWORD,
+  DEFAULT_FORM_FIELDS
 } from '../constants/defaults';
 import { generateNoreg, generateVirtualAccount } from '../utils';
 
@@ -70,6 +72,7 @@ interface SPMBContextType {
     level: JenjangPendidikan;
     jurusan?: JurusanMA;
     waveId: string;
+    extraFields?: { [key: string]: string };
   }) => SantriData;
   updateSantriStatus: (
     santriId: string,
@@ -110,6 +113,11 @@ interface SPMBContextType {
   addMajor: (major: MajorOption) => void;
   updateMajor: (majorId: string, updates: Partial<MajorOption>) => void;
   deleteMajor: (majorId: string) => void;
+
+  customFormFields: FormField[];
+  addFormField: (field: FormField) => void;
+  updateFormField: (fieldId: string, updates: Partial<FormField>) => void;
+  deleteFormField: (fieldId: string) => void;
 
   landingContent: LandingContent;
   updateLandingContent: (updates: Partial<LandingContent>) => void;
@@ -166,6 +174,9 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
   const [levels, setLevels] = useState<LevelOption[]>(initial?.levels || DEFAULT_LEVELS);
   const [majors, setMajors] = useState<MajorOption[]>(initial?.majors || DEFAULT_MAJORS);
+  const [customFormFields, setCustomFormFields] = useState<FormField[]>(
+    initial?.customFormFields || DEFAULT_FORM_FIELDS
+  );
   const [landingContent, setLandingContent] = useState<LandingContent>(
     initial?.landingContent || DEFAULT_LANDING_CONTENT
   );
@@ -193,6 +204,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       embargoState,
       levels,
       majors,
+      customFormFields,
       landingContent,
       adminUsers
     };
@@ -210,6 +222,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     embargoState,
     levels,
     majors,
+    customFormFields,
     landingContent,
     adminUsers
   ]);
@@ -228,6 +241,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (parsed.embargoState) setEmbargoState(parsed.embargoState);
           if (parsed.levels) setLevels(parsed.levels);
           if (parsed.majors) setMajors(parsed.majors);
+          if (parsed.customFormFields) setCustomFormFields(parsed.customFormFields);
           if (parsed.landingContent) setLandingContent(parsed.landingContent);
           if (parsed.adminUsers?.length) setAdminUsers(parsed.adminUsers);
         } catch (err) {
@@ -318,6 +332,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     level: JenjangPendidikan;
     jurusan?: JurusanMA;
     waveId: string;
+    extraFields?: { [key: string]: string };
   }): SantriData => {
     const targetWave = waves.find((w) => w.id === formData.waveId) || waves[0];
     const seq = santris.length + 842;
@@ -355,6 +370,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       bankName: 'Bank Syariah Indonesia (BSI)',
       virtualAccount: va,
       documents: {},
+      extraFields: formData.extraFields || {},
       examCard: {
         nomorPeserta: `CBT-${formData.level}-${seq}`,
         ruangCbt: 'Lab CBT Multazam Lantai 2',
@@ -551,6 +567,20 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setMajors((prev) => prev.filter((m) => m.id !== majorId));
   };
 
+  const addFormField = (field: FormField) => {
+    setCustomFormFields((prev) => [...prev, field]);
+  };
+
+  const updateFormField = (fieldId: string, updates: Partial<FormField>) => {
+    setCustomFormFields((prev) =>
+      prev.map((f) => (f.id === fieldId ? { ...f, ...updates } : f))
+    );
+  };
+
+  const deleteFormField = (fieldId: string) => {
+    setCustomFormFields((prev) => prev.filter((f) => f.id !== fieldId));
+  };
+
   const updateLandingContent = (updates: Partial<LandingContent>) => {
     setLandingContent((prev) => ({ ...prev, ...updates }));
   };
@@ -601,6 +631,7 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setEmbargoState(DEFAULT_EMBARGO_STATE);
     setLevels(DEFAULT_LEVELS);
     setMajors(DEFAULT_MAJORS);
+    setCustomFormFields(DEFAULT_FORM_FIELDS);
     setLandingContent(DEFAULT_LANDING_CONTENT);
     setAdminUsers(DEFAULT_ADMIN_USERS);
     setCurrentSantriState(DEFAULT_SANTRIS[0]);
@@ -669,6 +700,10 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addMajor,
         updateMajor,
         deleteMajor,
+        customFormFields,
+        addFormField,
+        updateFormField,
+        deleteFormField,
         landingContent,
         updateLandingContent,
         upsertFaq,

@@ -66,6 +66,19 @@ export interface DocRequirement {
   category: 'AKADEMIK' | 'IDENTITAS' | 'KESEHATAN' | 'TAMBAHAN';
 }
 
+export type FormFieldType = 'text' | 'number' | 'select';
+
+export interface FormField {
+  id: string;
+  key: string;
+  label: string;
+  type: FormFieldType;
+  isRequired: boolean;
+  minLength?: number;
+  placeholder?: string;
+  options?: string[];
+}
+
 export interface NoregFormatConfig {
   prefix: string; // e.g. "REG", "SPMB", "PPDB"
   separator: '-' | '/' | '.' | '';
@@ -134,6 +147,9 @@ export interface SantriData {
 
   // Documents
   documents: Record<string, UploadedDoc>;
+
+  // Extra custom form fields (configurable by admin)
+  extraFields?: { [key: string]: string };
 
   // Exam Card
   examCard?: ExamCardData;

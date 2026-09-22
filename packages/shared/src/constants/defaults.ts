@@ -10,7 +10,8 @@ import {
   SystemEmbargoState,
   LevelOption,
   MajorOption,
-  LandingContent
+  LandingContent,
+  FormField
 } from '../types';
 
 export const DEFAULT_ADMIN_PASSWORD = 'admin123';
@@ -199,6 +200,37 @@ export const DEFAULT_DOC_REQUIREMENTS: DocRequirement[] = [
     isRequired: false,
     order: 8,
     category: 'TAMBAHAN'
+  }
+];
+
+export const DEFAULT_FORM_FIELDS: FormField[] = [
+  {
+    id: 'ff-1',
+    key: 'sumberInfo',
+    label: 'Dari mana Anda mengetahui info pendaftaran ini?',
+    type: 'select',
+    isRequired: true,
+    minLength: 1,
+    placeholder: 'Pilih salah satu sumber informasi',
+    options: ['Media Sosial Instagram', 'Website Resmi', 'Keluarga/Teman', 'Panitia SPMB', 'Lainnya']
+  },
+  {
+    id: 'ff-2',
+    key: 'prestasi',
+    label: 'Prestasi / Juara yang pernah diraih',
+    type: 'text',
+    isRequired: false,
+    minLength: 0,
+    placeholder: 'cth: Juara 1 MTQ Kabupaten 2024'
+  },
+  {
+    id: 'ff-3',
+    key: 'anakKe',
+    label: 'Anak ke berapa?',
+    type: 'number',
+    isRequired: false,
+    minLength: 1,
+    placeholder: 'cth: 1'
   }
 ];
 

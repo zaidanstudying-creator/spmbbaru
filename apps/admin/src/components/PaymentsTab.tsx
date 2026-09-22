@@ -17,6 +17,12 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
   const { santris, updateSantriStatus, levels } = useSPMB();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [proofSantri, setProofSantri] = useState<SantriData | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
+  const openProofModal = (snt: SantriData) => {
+    setRejectReason('');
+    setProofSantri(snt);
+  };
 
   const filtered = santris.filter((s) => {
     if (filterStatus !== 'ALL' && s.statusPembayaran !== filterStatus) return false;
@@ -40,6 +46,16 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
       statusPembayaran: 'LUNAS',
       paidAt: new Date().toISOString().split('T')[0]
     });
+  };
+
+  const rejectProof = (snt: SantriData) => {
+    updateSantriStatus(snt.id, {
+      statusPembayaran: 'DITOLAK',
+      catatanPanitia:
+        rejectReason.trim() || 'Bukti transfer tidak sesuai. Silakan unggah ulang bukti transfer yang benar.'
+    });
+    setProofSantri(null);
+    setRejectReason('');
   };
 
   return (
@@ -67,7 +83,8 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
             { id: 'ALL', label: 'Semua' },
             { id: 'LUNAS', label: `Lunas (${countByStatus('LUNAS')})` },
             { id: 'MENUNGGU_KONFIRMASI', label: `Menunggu Konfirmasi (${countByStatus('MENUNGGU_KONFIRMASI')})` },
-            { id: 'BELUM_BAYAR', label: `Belum Bayar (${countByStatus('BELUM_BAYAR')})` }
+            { id: 'BELUM_BAYAR', label: `Belum Bayar (${countByStatus('BELUM_BAYAR')})` },
+            { id: 'DITOLAK', label: `Bukti Ditolak (${countByStatus('DITOLAK')})` }
           ].map((f) => (
             <button
               key={f.id}
@@ -158,7 +175,7 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                           variant="outline"
                           size="sm"
                           iconLeft="visibility"
-                          onClick={() => setProofSantri(s)}
+                          onClick={() => openProofModal(s)}
                         >
                           Cek Bukti & Verifikasi
                         </Button>
@@ -192,6 +209,19 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
       >
         {proofSantri && (
           <div className="space-y-4">
+            {proofSantri.statusPembayaran === 'DITOLAK' && (
+              <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800">
+                <div className="flex items-start gap-2">
+                  <Icon name="report_problem" size={16} className="shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Bukti ini sebelumnya ditolak.</strong>{' '}
+                    {proofSantri.catatanPanitia
+                      ? `Alasan: ${proofSantri.catatanPanitia}`
+                      : 'Tunggu punggung ulang bukti oleh santri.'}
+                  </div>
+                </div>
+              </div>
+            )}
             <DocumentPreview
               fileUrl={proofSantri.paymentProofUrl || ''}
               fileName={`bukti-${proofSantri.noReg}.jpg`}
@@ -209,23 +239,47 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+            {proofSantri.statusPembayaran !== 'LUNAS' && (
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700">
+                  Alasan minta unggah ulang (opsional)
+                </label>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  rows={2}
+                  placeholder="cth: nominal transfer tidak sesuai, bukti buram, nama pengirim tidak cocok..."
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 resize-none"
+                />
+              </div>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
               <span className="text-slate-600">
                 Nominal tagihan:{' '}
                 <strong className="text-slate-900">{formatCurrency(proofSantri.nominalBayar)}</strong>
               </span>
               {proofSantri.statusPembayaran !== 'LUNAS' && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  iconLeft="verified"
-                  onClick={() => {
-                    confirmPaid(proofSantri);
-                    setProofSantri(null);
-                  }}
-                >
-                  ACC, Konfirmasi Lunas
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    iconLeft="refresh"
+                    onClick={() => rejectProof(proofSantri)}
+                  >
+                    Minta Upload Ulang
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    iconLeft="verified"
+                    onClick={() => {
+                      confirmPaid(proofSantri);
+                      setProofSantri(null);
+                    }}
+                  >
+                    ACC, Konfirmasi Lunas
+                  </Button>
+                </div>
               )}
             </div>
           </div>

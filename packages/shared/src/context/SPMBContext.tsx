@@ -239,6 +239,16 @@ export const SPMBProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Keep the logged-in santri object in sync with the freshest data
+  // (e.g., after admin rejects/revisi a document or payment proof).
+  useEffect(() => {
+    setCurrentSantriState((prev) => {
+      if (!prev) return prev;
+      const fresh = santris.find((s) => s.id === prev.id);
+      return fresh ? fresh : prev;
+    });
+  }, [santris]);
+
   // Actions
   const updateBranding = (data: Partial<BrandingSettings>) => {
     setBranding((prev) => ({ ...prev, ...data }));

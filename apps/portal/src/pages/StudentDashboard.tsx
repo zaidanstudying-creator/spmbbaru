@@ -179,9 +179,21 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
                   <Icon name={berkasStatus.icon} size={14} />
                   {berkasStatus.label}
                 </span>
-                <span className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                <span className={`inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full font-bold border ${
+                  santri.statusPembayaran === 'LUNAS'
+                    ? 'bg-emerald-50 text-emerald-900 border-emerald-200'
+                    : santri.statusPembayaran === 'DITOLAK'
+                      ? 'bg-rose-50 text-rose-900 border-rose-200'
+                      : 'bg-amber-50 text-amber-900 border-amber-200'
+                }`}>
                   <Icon name="payments" size={14} />
-                  BSI {santri.statusPembayaran === 'LUNAS' ? 'Lunas' : 'Menunggu'} {formatCurrency(santri.nominalBayar)}
+                  BSI{' '}
+                  {santri.statusPembayaran === 'LUNAS'
+                    ? 'Lunas'
+                    : santri.statusPembayaran === 'DITOLAK'
+                      ? 'Ditolak'
+                      : 'Menunggu'}{' '}
+                  {formatCurrency(santri.nominalBayar)}
                 </span>
               </div>
 
@@ -287,7 +299,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
                     <p className="text-[11px] text-slate-500">Virtual Account SPMB Otomatis</p>
                   </div>
                 </div>
-                <Badge variant={santri.statusPembayaran === 'LUNAS' ? 'emerald' : 'amber'} size="sm">
+                <Badge
+                  variant={
+                    santri.statusPembayaran === 'LUNAS'
+                      ? 'emerald'
+                      : santri.statusPembayaran === 'DITOLAK'
+                        ? 'rose'
+                        : 'amber'
+                  }
+                  size="sm"
+                >
                   {paymentStatus.label}
                 </Badge>
               </div>
@@ -329,6 +350,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigate }
                 </div>
               ) : (
                 <div className="space-y-2">
+                  {santri.statusPembayaran === 'DITOLAK' && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 flex items-start gap-2">
+                      <Icon name="report_problem" size={16} className="shrink-0 mt-0.5 text-rose-600" />
+                      <div>
+                        <strong>Bukti transfer ditolak panitia.</strong>{' '}
+                        {santri.catatanPanitia || 'Silakan unggah ulang bukti transfer yang benar.'}
+                      </div>
+                    </div>
+                  )}
                   <label className="block text-xs font-bold text-slate-700">
                     Unggah Bukti Transfer (JPG/PNG/PDF, maks 2MB)
                   </label>

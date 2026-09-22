@@ -3,7 +3,7 @@ export type JenjangPendidikan = 'MTS' | 'MA' | (string & {});
 export type JurusanMA = 'MIPA' | 'IPS' | 'KEAGAMAAN' | 'UMUM';
 
 export type StatusBerkas = 'MENUNGGU' | 'TERVERIFIKASI' | 'REVISI' | 'DITOLAK';
-export type StatusPembayaran = 'BELUM_BAYAR' | 'MENUNGGU_KONFIRMASI' | 'LUNAS' | 'KADALUARSA';
+export type StatusPembayaran = 'BELUM_BAYAR' | 'MENUNGGU_KONFIRMASI' | 'LUNAS' | 'KADALUARSA' | 'DITOLAK';
 export type StatusKelulusan = 'DRAFT_LOLOS' | 'DRAFT_CADANGAN' | 'DRAFT_TIDAK_LOLOS' | 'LOLOS' | 'CADANGAN' | 'TIDAK_LOLOS' | 'BELUM_DITENTUKAN';
 export type AdminRole = 'KETUA_PANITIA' | 'VERIFIKATOR' | 'BENDAHARA' | 'ADMIN_SUPER';
 export type AdminTabId =

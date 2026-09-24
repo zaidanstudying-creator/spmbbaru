@@ -9,7 +9,7 @@ interface ExamCardModalProps {
 }
 
 export const ExamCardModal: React.FC<ExamCardModalProps> = ({ isOpen, onClose, santri }) => {
-  const { branding, waves, levels } = useSPMB();
+  const { branding, waves, levels, customFormFields } = useSPMB();
   const currentWave = waves.find((w) => w.id === santri.waveId) || waves[0];
   const exam = santri.examCard;
 
@@ -119,6 +119,33 @@ export const ExamCardModal: React.FC<ExamCardModalProps> = ({ isOpen, onClose, s
                   </tr>
                 </tbody>
               </table>
+
+              {/* Jawaban Formulir Tambahan (extraFields) */}
+              {customFormFields.length > 0 && (
+                <div className="mt-6 space-y-4 border-t border-slate-200 pt-4">
+                  <div className="flex items-center gap-2">
+                    <Icon name="clipboard" className="w-4 h-4 text-emerald-700" />
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Data Tambahan Formulir
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                    {customFormFields.map((f) => {
+                      const answer = (santri.extraFields || {})[f.key] || '';
+                      return (
+                        <div key={f.key}>
+                          <span className="text-xs text-slate-500 font-medium block">
+                            {f.label || f.key}
+                          </span>
+                          <span className="text-sm font-semibold text-slate-800 block mt-0.5">
+                            {answer || '—'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Photo, Pin & QR Code */}

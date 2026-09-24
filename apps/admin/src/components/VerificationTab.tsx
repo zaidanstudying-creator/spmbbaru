@@ -11,13 +11,14 @@ import {
 } from '@spmb/shared';
 import { Button, Badge, Icon, Card } from '@spmb/ui';
 import { DocumentModal } from './DocumentModal';
+import { generateSantrisCsv, formatWaSantriNotifLink, buildWaSantriNotifMessage } from '@spmb/shared';
 
 interface VerificationTabProps {
   searchQuery?: string;
 }
 
 export const VerificationTab: React.FC<VerificationTabProps> = ({ searchQuery = '' }) => {
-  const { santris, updateSantriStatus, embargoState, levels } = useSPMB();
+  const { santris, updateSantriStatus, embargoState, levels, branding, customFormFields } = useSPMB();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [selectedSantri, setSelectedSantri] = useState<SantriData | null>(null);
@@ -46,6 +47,33 @@ export const VerificationTab: React.FC<VerificationTabProps> = ({ searchQuery = 
     updateSantriStatus(snt.id, {
       statusKelulusan: newStatus
     });
+    // Siapkan notifikasi WA ke wali begitu status kelulusan diubah admin
+    const notifType =
+      newStatus === 'LOLOS'
+        ? 'KELULUSAN_LOLOS'
+        : newStatus === 'CADANGAN'
+        ? 'KELULUSAN_CADANGAN'
+        : 'KELULUSAN_TIDAK_LOLOS';
+    const link = formatWaSantriNotifLink(
+      notifType,
+      snt.parentPhone,
+      buildWaSantriNotifMessage(notifType, snt, {
+        pesantrenName: branding.pesantrenName,
+        academicYear: branding.academicYear
+      })
+    );
+    window.open(link, '_blank');
+  };
+
+  const handleExportExcel = () => {
+    const csv = generateSantrisCsv(filteredSantris, customFormFields);
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daftar-santri-spmb-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (

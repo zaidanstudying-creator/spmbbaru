@@ -5,7 +5,9 @@ import {
   StatusPembayaran,
   formatCurrency,
   formatDateIndo,
-  getStatusPembayaranLabel
+  getStatusPembayaranLabel,
+  buildWaSantriNotifMessage,
+  formatWaSantriNotifLink
 } from '@spmb/shared';
 import { Badge, Icon, Button, Modal, DocumentPreview } from '@spmb/ui';
 
@@ -14,7 +16,7 @@ interface PaymentsTabProps {
 }
 
 export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) => {
-  const { santris, updateSantriStatus, levels } = useSPMB();
+  const { santris, updateSantriStatus, levels, branding } = useSPMB();
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [proofSantri, setProofSantri] = useState<SantriData | null>(null);
   const [rejectReason, setRejectReason] = useState('');
@@ -258,8 +260,8 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                 Nominal tagihan:{' '}
                 <strong className="text-slate-900">{formatCurrency(proofSantri.nominalBayar)}</strong>
               </span>
-              {proofSantri.statusPembayaran !== 'LUNAS' && (
-                <div className="flex items-center gap-2">
+          {proofSantri.statusPembayaran !== 'LUNAS' && (
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="danger"
                     size="sm"
@@ -278,6 +280,42 @@ export const PaymentsTab: React.FC<PaymentsTabProps> = ({ searchQuery = '' }) =>
                     }}
                   >
                     ACC, Konfirmasi Lunas
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    iconRight="arrow_forward"
+                    onClick={() => {
+                      const link = formatWaSantriNotifLink(
+                        'PEMBAYARAN_LUNAS',
+                        proofSantri.parentPhone,
+                        buildWaSantriNotifMessage('PEMBAYARAN_LUNAS', proofSantri, {
+                          pesantrenName: branding.pesantrenName,
+                          academicYear: branding.academicYear
+                        })
+                      );
+                      window.open(link, '_blank');
+                    }}
+                  >
+                    Notif WA Lunas ke Wali
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    iconRight="arrow_forward"
+                    onClick={() => {
+                      const link = formatWaSantriNotifLink(
+                        'PEMBAYARAN_DITOLAK',
+                        proofSantri.parentPhone,
+                        buildWaSantriNotifMessage('PEMBAYARAN_DITOLAK', proofSantri, {
+                          pesantrenName: branding.pesantrenName,
+                          academicYear: branding.academicYear
+                        })
+                      );
+                      window.open(link, '_blank');
+                    }}
+                  >
+                    Notif WA Ditolak
                   </Button>
                 </div>
               )}

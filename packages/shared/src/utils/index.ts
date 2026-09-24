@@ -258,3 +258,160 @@ export function getAdminRoleAllowedTabs(role?: string): string[] {
 export function canRoleManageEmbargo(role?: string): boolean {
   return role === 'KETUA_PANITIA' || role === 'ADMIN_SUPER';
 }
+
+/* =========================================================================
+ * NOTIFIKASI WHATSAPP KE WALI (fitur admin: kabari orang tua saat status berubah)
+ * ========================================================================= */
+
+export type SantriNotifType =
+  | 'BERKAS_TERVERIFIKASI'
+  | 'BERKAS_DIREVISI'
+  | 'PEMBAYARAN_LUNAS'
+  | 'PEMBAYARAN_DITOLAK'
+  | 'KELULUSAN_LOLOS'
+  | 'KELULUSAN_CADANGAN'
+  | 'KELULUSAN_TIDAK_LOLOS';
+
+interface BuildWaNotifOptions {
+  pesantrenName: string;
+  academicYear: string;
+  noReg?: string;
+}
+
+/** Bangun pesan notifikasi WhatsApp Indonesia untuk wali, sesuai perubahan status yang dilakukan admin. */
+export function buildWaSantriNotifMessage(
+  type: SantriNotifType,
+  santri: { fullName: string; level?: string; jurusan?: string; parentName?: string; noReg?: string },
+  opts: BuildWaNotifOptions
+): string {
+  const { pesantrenName, academicYear } = opts;
+  const wali = santri.parentName ? `Yth. Bapak/Ibu ${santri.parentName}` : 'Yth. Bapak/Ibu Wali';
+  const nama = santri.fullName || 'Calon Santri';
+  const header = `Assalamu'alaikum Wr. Wb.\n\n${wali}\n\nKabar dari Panitia SPMB ${pesantrenName} (Tahun Ajaran ${academicYear}) mengenai pendaftaran ${nama}:`;
+
+  let isi = '';
+  switch (type) {
+    case 'BERKAS_TERVERIFIKASI':
+      isi = `Alhamdulillah, seluruh berkas persyaratan ${nama} telah kami NYATAKAN LENGKAP & TERVERIFIKASI. 🎉\n\nLanjut ke tahap verifikasi pembayaran & seleksi.\n\n${santri.noReg && santri.noReg.trim() ? `Nomor Registrasi: *${santri.noReg}*\n` : ''}Silakan cek portal secara berkala.`;
+      break;
+    case 'BERKAS_DIREVISI':
+      isi = `Mohon maaf, beberapa berkas persyaratan ${nama} perlu diperbaiki/dilengkapi oleh Bapak/Ibu.\n\n${santri.noReg && santri.noReg.trim() ? `Nomor Registrasi: *${santri.noReg}*\n` : ''}Silakan login ke portal untuk melihat catatan revisi dan mengunggah ulang berkas yang benar.`;
+      break;
+    case 'PEMBAYARAN_LUNAS':
+      isi = `Alhamdulillah, pembayaran pendaftaran ${nama} telah kami KONFIRMASI LUNAS. ✅\n\n${santri.noReg && santri.noReg.trim() ? `Nomor Registrasi: *${santri.noReg}*\n` : ''}Silakan login ke portal untuk mengunduh Kartu Peserta Ujian (CBT).`;
+      break;
+    case 'PEMBAYARAN_DITOLAK':
+      isi = `Mohon maaf, pembayaran pendaftaran ${nama} ditolak panitia karena bukti transfer tidak sesuai.\n\nSilakan cek catatan dari tim SPMB dan mengunggah ulang bukti transfer yang benar melalui portal.`;
+      break;
+    case 'KELULUSAN_LOLOS':
+      isi = `Alhamdulillah, selamat! ${nama} dinyatakan **LOLOS** seleksi SPMB ${pesantrenName} tahun ajaran ${academicYear} dan diterima sebagai santri. 🎉🎊\n\nSilakan ikuti langkah selanjutnya sesuai informasi yang disampaikan panitia.`;
+      break;
+    case 'KELULUSAN_CADANGAN':
+      isi = `Mohon maaf, ${nama} belum dapat dipastikan lolos pada tahap ini dan ditempatkan sebagai **CADANGAN**.\n\nMohon menunggu pengumuman lanjutan dari panitia SPMB ${pesantrenName}.`;
+      break;
+    case 'KELULUSAN_TIDAK_LOLOS':
+      isi = `Mohon maaf, ${nama} dinyatakan **TIDAK LOLOS** seleksi SPMB ${pesantrenName} tahun ajaran ${academicYear}.\n\nKami menghargai partisipasi Bapak/Ibu. Semoga tetap menjadi bekal yang baik di masa depan.`;
+      break;
+  }
+
+  return `${header}\n\n${isi}\n\nSalam & terima kasih,\nPanitia SPMB ${pesantrenName}`;
+}
+
+/** Link WhatsApp langsung ke wali dengan pesan notifikasi yang sudah terisi (untuk tombol "Kirim Notif WA"). */
+export function formatWaSantriNotifLink(
+  type: SantriNotifType,
+  parentPhone: string,
+  message: string
+): string {
+  return formatWhatsAppLink(parentPhone, message);
+}
+
+/* =========================================================================
+ * EXPORT EXCEL (CSV ber-BOM UTF-8, kompatibel Excel/WPS) daftar santri + jawaban formulir
+ * ========================================================================= */
+
+function csvEscape(value: unknown): string {
+  const s = String(value ?? '');
+  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  return s;
+}
+
+interface GenerateSantrisCsvOptions {
+  includePayment?: boolean;
+}
+
+/** Bangun CSV (delimiter titik-koma, BOM UTF-8) berisi daftar santri + seluruh jawaban field formulir tambahan. */
+export function generateSantrisCsv(
+  santris: { [key: string]: any }[],
+  customFormFields: { key: string; label: string }[],
+  opts: GenerateSantrisCsvOptions = {}
+): string {
+  const { includePayment = true } = opts;
+
+  const headersCSV = [
+      'No. Registrasi',
+      'Nama Lengkap',
+      'NISN',
+      'NISN/NIK',
+      'NIK',
+      'Jenis Kelamin',
+      'Tempat Lahir',
+      'Tanggal Lahir',
+      'Email',
+      'No. HP',
+      'Asal Sekolah',
+      'Jenjang',
+      'Jurusan',
+      'Gelombang',
+      'Status Berkas',
+      ...(includePayment ? ['Status Pembayaran', 'Nominal Bayar', 'Bank', 'No. Virtual Account', 'Tgl Pembayaran'] : []),
+      'Status Kelulusan',
+      ...customFormFields.map((f) => f.label)
+    ];
+
+    const rows = santris.map((s) => {
+      const row = [
+        s.noReg || s.no_reg || '',
+        s.fullName || s.nama_lengkap || '',
+        s.nisn || '',
+        s.nik || '',
+        s.gender === 'L' ? 'Laki-laki' : s.gender === 'P' ? 'Perempuan' : '',
+        s.birthPlace || '',
+        s.birthDate || '',
+        s.email || '',
+        s.phone || s.parentPhone || '',
+        s.prevSchool || '',
+        s.level || '',
+        s.jurusan || '',
+        s.waveId || '',
+        (s.statusBerkas && getStatusBerkasLabel(s.statusBerkas).label) || s.statusBerkas || '',
+        ...(includePayment
+          ? [
+              (s.statusPembayaran && getStatusPembayaranLabel(s.statusPembayaran).label) || s.statusPembayaran || '',
+              s.nominalBayar || '',
+              s.bankName || '',
+              s.virtualAccount || '',
+              s.paidAt || ''
+            ]
+          : []),
+        (
+          s.statusKelulusan === 'LOLOS' || s.statusKelulusan === 'DRAFT_LOLOS'
+            ? 'Lolos'
+            : s.statusKelulusan === 'CADANGAN' || s.statusKelulusan === 'DRAFT_CADANGAN'
+              ? 'Cadangan'
+              : s.statusKelulusan === 'TIDAK_LOLOS' || s.statusKelulusan === 'DRAFT_TIDAK_LOLOS'
+                ? 'Tidak Lolos'
+                : s.statusKelulusan === 'BELUM_DITENTUKAN'
+                  ? 'Belum Ditentukan'
+                  : s.statusKelulusan || ''
+        ),
+        ...customFormFields.map((f) => {
+          const extra = s.extraFields || {};
+          return extra[f.key] || (s.answers && s.answers[f.label]) || '';
+        })
+      ];
+      return row.map(csvEscape).join(';');
+    });
+
+    return `\uFEFF${[headersCSV.map(csvEscape).join(';'), ...rows].join('\r\n')}`;
+  }
